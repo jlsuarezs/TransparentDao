@@ -1,4 +1,4 @@
-{
+var balanceSheet = {
   "contractName": "BalanceSheet",
   "abi": [
     {
@@ -5052,4 +5052,10 @@
   "networks": {},
   "schemaVersion": "2.0.1",
   "updatedAt": "2018-12-14T17:21:44.516Z"
+}
+
+module.exports = {
+
+  balanceSheet
+
 }
