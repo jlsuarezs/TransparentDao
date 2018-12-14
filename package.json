@@ -1,0 +1,33 @@
+{
+  "name": "transparentdao",
+  "version": "1.0.0",
+  "description": "Dao that uses financial reports to showcase its revenue and spending, similar to how a normal stock-market company would do",
+  "main": "truffle.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "truffle test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stefanionescu/TransparentDao.git"
+  },
+  "keywords": [
+    "ethereum",
+    "solidity",
+    "javascript",
+    "accounting",
+    "financial-markets",
+    "financial-analysis"
+  ],
+  "author": "Stefan Ionescu, stefanionescu@protonmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stefanionescu/TransparentDao/issues"
+  },
+  "homepage": "https://github.com/stefanionescu/TransparentDao#readme",
+  "dependencies": {
+    "truffle-hdwallet-provider": "0.0.6"
+  }
+}
