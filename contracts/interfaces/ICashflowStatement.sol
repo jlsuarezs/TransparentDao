@@ -8,7 +8,7 @@ contract ICashflowStatement {
 
     uint256 timestamp;
 
-    string employeeType;
+    bytes32 employeeType;
 
     address employee;
 
@@ -18,7 +18,7 @@ contract ICashflowStatement {
 
   struct InterestPayment {
 
-    string interestType;
+    bytes32 interestType;
 
     address receiver;
 
@@ -30,7 +30,7 @@ contract ICashflowStatement {
 
     uint256 date;
 
-    string forWhat;
+    bytes32 forWhat;
 
     uint256 howMuch;
 
@@ -40,7 +40,7 @@ contract ICashflowStatement {
 
     uint256 date;
 
-    string forWhat;
+    bytes32 forWhat;
 
     uint256 howMuch;
 
@@ -58,21 +58,21 @@ contract ICashflowStatement {
 
   event UpdatedIncreasesInInventory(uint256 inventory);
 
-  event SetEquipmentExpenses(string updateReason, uint256 equipment);
+  event SetEquipmentExpenses(bytes32 updateReason, uint256 equipment);
 
   event SetCharity(uint256 charity);
 
-  event AddedNonRecurrentSalary(string employeeT, address who, uint256 payment);
+  event AddedNonRecurrentSalary(bytes32 employeeT, address who, uint256 payment);
 
   event AddedRecurrentSalary(address employee, uint256 salary);
 
   event DeletedRecurrentSalary(address employee);
 
-  event AddedRent(string reason, uint256 howMuch);
+  event AddedRent(bytes32 reason, uint256 howMuch);
 
-  event AddedIncomeTax(string reason, uint256 howMuch);
+  event AddedIncomeTax(bytes32 reason, uint256 howMuch);
 
-  event AddedInterestPayment(string _type, address receiver, uint256 amount);
+  event AddedInterestPayment(bytes32 _type, address receiver, uint256 amount);
 
   event UpdatedDividents(uint256 dividents);
 
@@ -89,23 +89,27 @@ contract ICashflowStatement {
 
   function updateIncreaseInInventory(uint256 inventory) public;
 
-  function setEquipmentExpenses(string updateReason, uint256 equipment) public;
+  function setEquipmentExpenses(bytes32 updateReason, uint256 equipment) public;
 
   function setCharity(uint256 _charity) public;
 
-  function addNonRecurrentSalary(string employeeT, address who, uint256 payment) public;
+  function addNonRecurrentSalary(bytes32 employeeT, address who, uint256 payment) public;
 
   function addRecurrentSalary(address employee, uint256 salary) public;
 
   function deleteRecurrentSalary(address employee) public;
 
-  function addRent(string reason, uint256 howMuch) public;
+  function addRent(bytes32 reason, uint256 howMuch) public;
 
-  function addIncomeTax(string reason, uint256 howMuch) public;
+  function addIncomeTax(bytes32 reason, uint256 howMuch) public;
 
   function updateDividentsPaid(uint256 dividents) public;
 
-  function addInterestPayment(string _type, address receiver, uint256 amount) public;
+  function addInterestPayment(bytes32 _type, address receiver, uint256 amount) public;
+
+
+
+  function getDao() public view returns (address);
 
   function getNetEarnings() public view returns (uint256);
 
@@ -133,7 +137,7 @@ contract ICashflowStatement {
 
   function getRecurrentSalary(address who) public view returns (uint256);
 
-  function getEquipmentDetails(string reason) public view returns (uint256);
+  function getEquipmentDetails(bytes32 reason) public view returns (uint256);
 
   function getMonthlyCharity(uint256 position) public view returns (uint256);
 

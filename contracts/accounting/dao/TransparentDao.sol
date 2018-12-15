@@ -4,12 +4,15 @@ import "contracts/zeppelin/SafeMath.sol";
 import "contracts/utils/Forwarder.sol";
 import "contracts/utils/DateTime.sol";
 
-import "contracts/interfaces/IReportIssuer.sol";
 import "contracts/interfaces/IDAOCoin.sol";
+import "contracts/interfaces/IDAOBond.sol";
+
 import "contracts/interfaces/ITransparentDao.sol";
 import "contracts/interfaces/IFloatMath.sol";
+
 import "contracts/interfaces/IIncomeStatement.sol";
-import "contracts/interfaces/IDAOBond.sol";
+import "contracts/interfaces/IBalanceSheet.sol";
+import "contracts/interfaces/ICashflowStatement.sol";
 
 contract TransparentDao is ITransparentDao, Forwarder {
 
@@ -45,10 +48,6 @@ contract TransparentDao is ITransparentDao, Forwarder {
 
   uint256[] incomeThresholds;
 
-  //How many tax thresholds there are
-
-  uint256 taxLenght;
-
   //Financial year indices
 
   uint256 startOfCurrentYear;
@@ -62,8 +61,6 @@ contract TransparentDao is ITransparentDao, Forwarder {
 
   IDAOCoin daoCoin;
 
-  IReportIssuer issuer;
-
   IFloatMath floatMath;
 
   DateTime dateTime;
@@ -74,23 +71,18 @@ contract TransparentDao is ITransparentDao, Forwarder {
 
   mapping(uint256 => Report) reports;
 
-  constructor(address _reportIssuer, address _unitOfAccount, address _floatMath,
+  constructor(address _unitOfAccount, address _floatMath,
               address _daoCoin, address _dateTime) {
 
     require(_unitOfAccount == address(0) || isContract(_unitOfAccount) == true);
-    require(isContract(_floatMath) == true);
-    require(isContract(_dateTime) == true);
-    require(isContract(_daoCoin) == true);
 
-    daoCoin = IDAOCoin(_daoCoin);
-
-    issuer = IReportIssuer(_reportIssuer);
+    if (daoCoin != address(0)) daoCoin = IDAOCoin(_daoCoin);
 
     UOA = _unitOfAccount;
 
-    floatMath = IFloatMath(_floatMath);
+    if (floatMath != address(0)) floatMath = IFloatMath(_floatMath);
 
-    dateTime = DateTime(_dateTime);
+    if (dateTime != address(0)) dateTime = DateTime(_dateTime);
 
   }
 
@@ -99,16 +91,6 @@ contract TransparentDao is ITransparentDao, Forwarder {
     require(isContract(_dateTime) == true);
 
     dateTime = DateTime(_dateTime);
-
-  }
-
-  function changeIssuer(address _issuer) public {
-
-    require(isContract(_issuer) == true);
-
-    issuer = IReportIssuer(_issuer);
-
-    emit ChangedIssuer(_issuer);
 
   }
 
@@ -145,7 +127,7 @@ contract TransparentDao is ITransparentDao, Forwarder {
 
   function deleteTax(uint256 position) public {
 
-    if (position >= latestTax.length) return;
+    require(position < latestTax.length);
 
     for (uint i = position; i < latestTax.length.sub(1); i++) {
 
@@ -164,15 +146,31 @@ contract TransparentDao is ITransparentDao, Forwarder {
 
   }
 
-  function startReport() public {
+  function newBond(address _bond) public {
+
+    require(isContract(_bond) == true);
+
+    IDAOBond newBond = IDAOBond(_bond);
+
+    require(newBond.getNonce() == 0);
+
+    bonds.push(newBond);
+
+    emit NewBond(_bond);
+
+  }
+
+  function startReport(address _income, address _balance, address _cashflow) public {
 
     require(latestReportIssuance == 0 || now - latestReportIssuance >= quarter);
 
-    address _balance;
-    address _cashflow;
-    address _income;
+    IIncomeStatement inc = IIncomeStatement(_income);
+    IBalanceSheet balance = IBalanceSheet(_balance);
+    ICashflowStatement cash = ICashflowStatement(_cashflow);
 
-    (_income, _balance, _cashflow) = issuer.issueReport(address(dateTime));
+    require(inc.getDao() == address(this));
+    require(balance.getDao() == address(this));
+    require(cash.getDao() == address(this));
 
     Report memory newReport = Report(_income, _balance, _cashflow);
 
@@ -189,7 +187,7 @@ contract TransparentDao is ITransparentDao, Forwarder {
 
   }
 
-  function() payable;
+  function() payable {}
 
   //PRIVATE
 
@@ -219,12 +217,19 @@ contract TransparentDao is ITransparentDao, Forwarder {
     require(startPosition.add(bondsNumber) < bonds.length);
 
     uint256 debt = 0;
+    uint256 currentDebt = 0;
 
-    for (uint256 i = startPosition; i < startPosition.add(bondsNumber); i++) {
+    uint256 i = startPosition;
 
-      debt = debt.add(bonds[i].getTotalDebt());
+    do {
 
-    }
+      currentDebt = bonds[i].getTotalDebt();
+
+      debt = debt.add(currentDebt);
+
+      i++;
+
+    } while (i < startPosition.add(bondsNumber));
 
     return debt;
 
@@ -281,11 +286,17 @@ contract TransparentDao is ITransparentDao, Forwarder {
 
   }
 
+  function getIncomeThresholds() public view returns (uint256[]) {
+
+    return incomeThresholds;
+
+  }
+
   function getTaxType() public view returns (uint) {
 
-    if (taxLenght > 1) return uint(TAX_TYPE.PROGRESSIVE);
+    if (latestTax.length > 1) return uint(TAX_TYPE.PROGRESSIVE);
 
-    else if (taxLenght == 1) return uint(TAX_TYPE.SIMPLE);
+    else if (latestTax.length == 1) return uint(TAX_TYPE.SIMPLE);
 
     return uint(TAX_TYPE.NO_TAX);
 

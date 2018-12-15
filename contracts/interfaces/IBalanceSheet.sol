@@ -2,27 +2,27 @@ pragma solidity 0.4.24;
 
 contract IBalanceSheet {
 
-  event SetAssets(string _asset, int256 amount);
+  event SetAssets(bytes32 _asset, int256 amount);
 
-  event SetLiabilities(string _liabilities, int256 amount);
+  event SetLiabilities(bytes32 _liabilities, int256 amount);
 
-  event SetEquity(string _equity, int256 amount);
+  event SetEquity(bytes32 _equity, int256 amount);
 
 
-  function setAssets(string _asset, int256 amount) public;
+  function setAssets(bytes32 _asset, int256 amount) public;
 
-  function setLiabilities(string _liabilities, int256 amount) public;
+  function setLiabilities(bytes32 _liabilities, int256 amount) public;
 
-  function setEquity(string _equity, int256 amount) public;
+  function setEquity(bytes32 _equity, int256 amount) public;
 
-  function getMarginOfSafety() public view returns (int256);
 
-  function getAcidTestResult() public view returns (int256);
 
-  function getAsset(string _asset) public view returns (int256);
+  function getDao() public view returns (address);
 
-  function getLiability(string _liability) public view returns (int256);
+  function getAsset(bytes32 _asset) public view returns (int256);
 
-  function getEquity(string _equity) public view returns (int256);
+  function getLiability(bytes32 _liability) public view returns (int256);
+
+  function getEquity(bytes32 _equity) public view returns (int256);
 
 }

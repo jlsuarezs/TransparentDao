@@ -63,7 +63,7 @@ contract CashflowStatement is ICashflowStatement {
 
   mapping(address => uint256) recurrentSalaries;
 
-  mapping(string => uint256) equipmentExpenses;
+  mapping(bytes32 => uint256) equipmentExpenses;
 
   modifier onlyDAO() {
 
@@ -155,7 +155,7 @@ contract CashflowStatement is ICashflowStatement {
 
   }
 
-  function setEquipmentExpenses(string updateReason, uint256 equipment) public onlyDAO inQuarter {
+  function setEquipmentExpenses(bytes32 updateReason, uint256 equipment) public onlyDAO inQuarter {
 
     equipmentExpenses[updateReason] = equipmentExpenses[updateReason]
                                       + (equipment - totalEquipmentExpenses);
@@ -178,7 +178,7 @@ contract CashflowStatement is ICashflowStatement {
 
   }
 
-  function addNonRecurrentSalary(string employeeT, address who, uint256 payment) public onlyDAO inQuarter {
+  function addNonRecurrentSalary(bytes32 employeeT, address who, uint256 payment) public onlyDAO inQuarter {
 
     NonRecurrentSalary memory newSalary = NonRecurrentSalary(now, employeeT, who, payment);
 
@@ -204,7 +204,7 @@ contract CashflowStatement is ICashflowStatement {
 
   }
 
-  function addRent(string reason, uint256 howMuch) public onlyDAO inQuarter {
+  function addRent(bytes32 reason, uint256 howMuch) public onlyDAO inQuarter {
 
     Rent memory newRent = Rent(now, reason, howMuch);
 
@@ -214,7 +214,7 @@ contract CashflowStatement is ICashflowStatement {
 
   }
 
-  function addIncomeTax(string reason, uint256 howMuch) public onlyDAO inQuarter {
+  function addIncomeTax(bytes32 reason, uint256 howMuch) public onlyDAO inQuarter {
 
     IncomeTax memory newIncome = IncomeTax(now, reason, howMuch);
 
@@ -224,7 +224,7 @@ contract CashflowStatement is ICashflowStatement {
 
   }
 
-  function addInterestPayment(string _type, address receiver, uint256 amount) public onlyDAO inQuarter {
+  function addInterestPayment(bytes32 _type, address receiver, uint256 amount) public onlyDAO inQuarter {
 
     InterestPayment memory newInterest = InterestPayment(_type, receiver, amount);
 
@@ -395,7 +395,7 @@ contract CashflowStatement is ICashflowStatement {
 
   }
 
-  function getEquipmentDetails(string reason) public view returns (uint256) {
+  function getEquipmentDetails(bytes32 reason) public view returns (uint256) {
 
     return equipmentExpenses[reason];
 
@@ -440,6 +440,12 @@ contract CashflowStatement is ICashflowStatement {
   function getTotalDividentsPaid() public view returns (uint256) {
 
     return totalDividentsPaid;
+
+  }
+
+  function getDao() public view returns (address) {
+
+    return dao;
 
   }
 

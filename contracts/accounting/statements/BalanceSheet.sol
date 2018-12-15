@@ -58,7 +58,7 @@ contract BalanceSheet is IBalanceSheet {
 
   uint256 commonCoins;
 
-  uint256 treasuryStock;
+  uint256 treasuryCoins;
 
   uint256 commonEquity;
 
@@ -72,9 +72,9 @@ contract BalanceSheet is IBalanceSheet {
 
   address dao;
 
-  mapping(string => int256) detailedAssets;
-  mapping(string => int256) detailedLiabilities;
-  mapping(string => int256) detailedEquity;
+  mapping(bytes32 => int256) detailedAssets;
+  mapping(bytes32 => int256) detailedLiabilities;
+  mapping(bytes32 => int256) detailedEquity;
 
   modifier onlyDAO {
 
@@ -101,7 +101,7 @@ contract BalanceSheet is IBalanceSheet {
 
   }
 
-  function setAssets(string _asset, int256 amount) public onlyDAO inQuarter {
+  function setAssets(bytes32 _asset, int256 amount) public onlyDAO inQuarter {
 
     detailedAssets[_asset] = amount;
 
@@ -109,17 +109,17 @@ contract BalanceSheet is IBalanceSheet {
 
   }
 
-  function setLiabilities(string _liabilities, int256 amount) public onlyDAO inQuarter {
+  function setLiabilities(bytes32 _liabilities, int256 amount) public onlyDAO inQuarter {
 
-    detailedAssets[_liabilities] = amount;
+    detailedLiabilities[_liabilities] = amount;
 
     emit SetLiabilities(_liabilities, amount);
 
   }
 
-  function setEquity(string _equity, int256 amount) public onlyDAO inQuarter {
+  function setEquity(bytes32 _equity, int256 amount) public onlyDAO inQuarter {
 
-    detailedAssets[_equity] = amount;
+    detailedEquity[_equity] = amount;
 
     emit SetEquity(_equity, amount);
 
@@ -127,33 +127,27 @@ contract BalanceSheet is IBalanceSheet {
 
   //GETTERS
 
-  function getMarginOfSafety() public view returns (int256) {
-
-
-
-  }
-
-  function getAcidTestResult() public view returns (int256) {
-
-    //(cash + accounts receivable + short term investments) / current liabilities
-
-  }
-
-  function getAsset(string _asset) public view returns (int256) {
+  function getAsset(bytes32 _asset) public view returns (int256) {
 
     return detailedAssets[_asset];
 
   }
 
-  function getLiability(string _liability) public view returns (int256) {
+  function getLiability(bytes32 _liability) public view returns (int256) {
 
     return detailedLiabilities[_liability];
 
   }
 
-  function getEquity(string _equity) public view returns (int256) {
+  function getEquity(bytes32 _equity) public view returns (int256) {
 
     return detailedEquity[_equity];
+
+  }
+
+  function getDao() public view returns (address) {
+
+    return dao;
 
   }
 
