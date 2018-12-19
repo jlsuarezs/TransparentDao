@@ -1,15 +1,63 @@
-pragma experimental ABIEncoderV2;
+pragma solidity 0.4.24;
 
 import "contracts/interfaces/ICashflowStatement.sol";
 
+import "contracts/zeppelin/SafeMath.sol";
+
 contract CashflowStatement is ICashflowStatement {
+
+  using SafeMath for uint256;
+
+  //Structs
+
+  struct NonRecurrentSalary {
+
+    uint256 timestamp;
+
+    bytes32 employeeType;
+
+    address employee;
+
+    uint256 payment;
+
+  }
+
+  struct InterestPayment {
+
+    bytes32 interestType;
+
+    address receiver;
+
+    uint256 amount;
+
+  }
+
+  struct IncomeTax {
+
+    uint256 date;
+
+    bytes32 forWhat;
+
+    uint256 howMuch;
+
+  }
+
+  struct Rent {
+
+    uint256 date;
+
+    bytes32 forWhat;
+
+    uint256 howMuch;
+
+  }
 
   //Constants
 
-  uint256 month = 712 hours;
-  uint256 twoMonths = 1424 hours;
-  uint256 quarter = 2136 hours;
-  uint256 year = 8544 hours;
+  uint256 month = 712;
+  uint256 twoMonths = 1424;
+  uint256 quarter = 2136;
+  uint256 year = 8544;
 
   //Indices
 
@@ -38,28 +86,31 @@ contract CashflowStatement is ICashflowStatement {
 
   address dao;
 
+  uint256 nonRecurrentNonce = 0;
+
 
   uint256 startTime;
 
-  uint256[] monthlyCharity;
+  uint256[] monthlyCharity = new uint256[](3);
 
-  uint256[] monthlyTotalEquipment;
+  uint256[] monthlyTotalEquipment = new uint256[](3);
 
-  uint256[] monthlyIncreaseInInventory;
+  uint256[] monthlyIncreaseInInventory = new uint256[](3);
 
-  uint256[] monthlyDepreciations;
+  uint256[] monthlyDepreciations = new uint256[](3);
 
-  uint256[] monthlyNetEarnings;
+  uint256[] monthlyNetEarnings = new uint256[](3);
 
-  uint256[] monthlyDividentsPaid;
+  uint256[] monthlyDividentsPaid = new uint256[](3);
 
-  NonRecurrentSalary[] nonRecurrentSalaries;
 
   IncomeTax[] incomeTaxes;
 
   Rent[] rents;
 
   InterestPayment[] interestPayments;
+
+  mapping(uint256 => NonRecurrentSalary) nonRecurrentSalaries;
 
   mapping(address => uint256) recurrentSalaries;
 
@@ -75,7 +126,7 @@ contract CashflowStatement is ICashflowStatement {
 
   modifier inQuarter {
 
-    uint _hours = (now - startTime) / 60 / 60 / 24 / 60;
+    uint _hours = getHours(now, startTime);
 
     require(_hours <= quarter);
 
@@ -95,7 +146,7 @@ contract CashflowStatement is ICashflowStatement {
 
     netEarnings = earnings;
 
-    addToMonthlyNetIncome((now - startTime) / 60 / 60 / 24 / 60, earnings);
+    addToMonthlyNetIncome(getHours(now, startTime), earnings);
 
     emit UpdatedNetEarnings(earnings);
 
@@ -105,7 +156,7 @@ contract CashflowStatement is ICashflowStatement {
 
     depreciations = _depreciations;
 
-    addToMonthlyDepreciations((now - startTime) / 60 / 60 / 24 / 60, _depreciations);
+    addToMonthlyDepreciations(getHours(now, startTime), _depreciations);
 
     emit UpdatedDepreciations(_depreciations);
 
@@ -139,7 +190,7 @@ contract CashflowStatement is ICashflowStatement {
 
     totalDividentsPaid = dividents;
 
-    addToMonthlyDividents((now - startTime) / 60 / 60 / 24 / 60, dividents);
+    addToMonthlyDividents(getHours(now, startTime), dividents);
 
     emit UpdatedDividents(dividents);
 
@@ -149,20 +200,19 @@ contract CashflowStatement is ICashflowStatement {
 
     increaseInInventory = inventory;
 
-    addToMonthlyIncreaseInInventory((now - startTime) / 60 / 60 / 24 / 60, inventory);
+    addToMonthlyIncreaseInInventory(getHours(now, startTime), inventory);
 
     emit UpdatedIncreasesInInventory(inventory);
 
   }
 
-  function setEquipmentExpenses(bytes32 updateReason, uint256 equipment) public onlyDAO inQuarter {
+  function setEquipmentExpenses(bytes32 updateReason, uint256 equipment, uint256 total) public onlyDAO inQuarter {
 
-    equipmentExpenses[updateReason] = equipmentExpenses[updateReason]
-                                      + (equipment - totalEquipmentExpenses);
+    equipmentExpenses[updateReason] = equipment;
 
-    totalEquipmentExpenses = equipment;
+    totalEquipmentExpenses = total;
 
-    addToMonthlyTotalEquipment((now - startTime) / 60 / 60 / 24 / 60, equipment);
+    addToMonthlyTotalEquipment(getHours(now, startTime), equipment);
 
     emit SetEquipmentExpenses(updateReason, equipment);
 
@@ -170,7 +220,7 @@ contract CashflowStatement is ICashflowStatement {
 
   function setCharity(uint256 _charity) public onlyDAO inQuarter {
 
-    addToMonthlyCharity((now - startTime) / 60 / 60 / 24 / 60, _charity);
+    addToMonthlyCharity(getHours(now, startTime), _charity);
 
     charity = _charity;
 
@@ -182,7 +232,9 @@ contract CashflowStatement is ICashflowStatement {
 
     NonRecurrentSalary memory newSalary = NonRecurrentSalary(now, employeeT, who, payment);
 
-    nonRecurrentSalaries.push(newSalary);
+    nonRecurrentSalaries[nonRecurrentNonce] = newSalary;
+
+    nonRecurrentNonce++;
 
     emit AddedNonRecurrentSalary(employeeT, who, payment);
 
@@ -241,10 +293,10 @@ contract CashflowStatement is ICashflowStatement {
     if (_hours <= month)
       monthlyNetEarnings[0] = howMuch;
 
-    else if (_hours >= month && _hours <= twoMonths)
+    else if (_hours > month && _hours <= twoMonths)
       monthlyNetEarnings[1] = howMuch;
 
-    else if (_hours >= twoMonths && _hours <= quarter)
+    else if (_hours > twoMonths && _hours <= quarter)
       monthlyNetEarnings[2] = howMuch;
 
   }
@@ -254,10 +306,10 @@ contract CashflowStatement is ICashflowStatement {
     if (_hours <= month)
       monthlyDepreciations[0] = howMuch;
 
-    else if (_hours >= month && _hours <= twoMonths)
+    else if (_hours > month && _hours <= twoMonths)
       monthlyDepreciations[1] = howMuch;
 
-    else if (_hours >= twoMonths && _hours <= quarter)
+    else if (_hours > twoMonths && _hours <= quarter)
       monthlyDepreciations[2] = howMuch;
 
   }
@@ -267,10 +319,10 @@ contract CashflowStatement is ICashflowStatement {
     if (_hours <= month)
       monthlyIncreaseInInventory[0] = howMuch;
 
-    else if (_hours >= month && _hours <= twoMonths)
+    else if (_hours > month && _hours <= twoMonths)
       monthlyIncreaseInInventory[1] = howMuch;
 
-    else if (_hours >= twoMonths && _hours <= quarter)
+    else if (_hours > twoMonths && _hours <= quarter)
       monthlyIncreaseInInventory[2] = howMuch;
 
   }
@@ -280,10 +332,10 @@ contract CashflowStatement is ICashflowStatement {
     if (_hours <= month)
       monthlyTotalEquipment[0] = howMuch;
 
-    else if (_hours >= month && _hours <= twoMonths)
+    else if (_hours > month && _hours <= twoMonths)
       monthlyTotalEquipment[1] = howMuch;
 
-    else if (_hours >= twoMonths && _hours <= quarter)
+    else if (_hours > twoMonths && _hours <= quarter)
       monthlyTotalEquipment[2] = howMuch;
 
   }
@@ -291,13 +343,13 @@ contract CashflowStatement is ICashflowStatement {
   function addToMonthlyCharity(uint256 _hours, uint256 howMuch) private {
 
     if (_hours <= month)
-      monthlyTotalEquipment[0] = howMuch;
+      monthlyCharity[0] = howMuch;
 
-    else if (_hours >= month && _hours <= twoMonths)
-      monthlyTotalEquipment[1] = howMuch;
+    else if (_hours > month && _hours <= twoMonths)
+      monthlyCharity[1] = howMuch;
 
-    else if (_hours >= twoMonths && _hours <= quarter)
-      monthlyTotalEquipment[2] = howMuch;
+    else if (_hours > twoMonths && _hours <= quarter)
+      monthlyCharity[2] = howMuch;
 
   }
 
@@ -306,16 +358,22 @@ contract CashflowStatement is ICashflowStatement {
     if (_hours <= month)
       monthlyDividentsPaid[0] = howMuch;
 
-    else if (_hours >= month && _hours <= twoMonths)
+    else if (_hours > month && _hours <= twoMonths)
       monthlyDividentsPaid[1] = howMuch;
 
-    else if (_hours >= twoMonths && _hours <= quarter)
+    else if (_hours > twoMonths && _hours <= quarter)
       monthlyDividentsPaid[2] = howMuch;
 
   }
 
 
   //GETTERS
+
+  function getHours(uint256 endTime, uint256 startTime) public view returns (uint256) {
+
+    return (endTime.sub(startTime)).div(3600);
+
+  }
 
   function getNetEarnings() public view returns (uint256) {
 
@@ -365,27 +423,29 @@ contract CashflowStatement is ICashflowStatement {
 
   }
 
-  function getNonCurrentSalary(uint256 pos) public view returns (NonRecurrentSalary) {
+  function getNonRecurrentSalary(uint256 pos) public view returns (uint256, bytes32, address, uint256) {
 
-    return nonRecurrentSalaries[pos];
-
-  }
-
-  function getIncomeTax(uint256 pos) public view returns (IncomeTax) {
-
-    return incomeTaxes[pos];
+    return (nonRecurrentSalaries[pos].timestamp, nonRecurrentSalaries[pos].employeeType,
+            nonRecurrentSalaries[pos].employee, nonRecurrentSalaries[pos].payment);
 
   }
 
-  function getRent(uint256 pos) public view returns (Rent) {
+  function getIncomeTax(uint256 pos) public view returns (uint256, bytes32, uint256) {
 
-    return rents[pos];
+    return (incomeTaxes[pos].date, incomeTaxes[pos].forWhat, incomeTaxes[pos].howMuch);
 
   }
 
-  function getInterest(uint256 pos) public view returns (InterestPayment) {
+  function getRent(uint256 pos) public view returns (uint256, bytes32, uint256) {
 
-    return interestPayments[pos];
+    return (rents[pos].date, rents[pos].forWhat, rents[pos].howMuch);
+
+  }
+
+  function getInterest(uint256 pos) public view returns (bytes32, address, uint256) {
+
+    return (interestPayments[pos].interestType, interestPayments[pos].receiver,
+            interestPayments[pos].amount);
 
   }
 

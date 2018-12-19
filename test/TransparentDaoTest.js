@@ -7,6 +7,7 @@ var DAOCoin = artifacts.require("contracts/accounting/dao/DAOCoin.sol")
 var TransparentDao = artifacts.require("contracts/accounting/dao/TransparentDao.sol")
 
 const increaseTime = require('./helpers/increaseTime')
+const assertFail = require("./helpers/assertFail")
 
 contract('TransparentDao', function (accounts) {
 
@@ -706,6 +707,548 @@ contract('TransparentDao', function (accounts) {
     assert.equal(await income.getTotalGrossIncome(), 30)
 
     assert.equal(await income.getMonthlyRevenue(2), 10)
+
+  })
+
+  it("Test cashflow statement - updateNetEarnings", async () => {
+
+    await dao.startReport(income.address, balanceSheet.address, cashflow.address,
+        {from: accounts[0]})
+
+    //Check if only DAO can call
+
+    await assertFail(async () => (
+          await cashflow.updateNetEarnings(10, { from: accounts[1] })
+    ));
+
+    //Month 1
+
+    await dao.callUint256(cashflow.address, "updateNetEarnings(uint256)",
+                          10)
+
+    var earnings = await cashflow.getNetEarnings()
+
+    assert.equal(earnings, 10)
+
+    assert.equal(await cashflow.getMonthlyNetEarnings(0), 10)
+
+    //Month 2
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callUint256(cashflow.address, "updateNetEarnings(uint256)",
+                          10)
+
+    earnings = await cashflow.getNetEarnings()
+
+    assert.equal(earnings, 10)
+
+    assert.equal(await cashflow.getMonthlyNetEarnings(1), 10)
+
+    //Month 3
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callUint256(cashflow.address, "updateNetEarnings(uint256)",
+                          10)
+
+    earnings = await cashflow.getNetEarnings()
+
+    assert.equal(earnings, 10)
+
+    assert.equal(await cashflow.getMonthlyNetEarnings(2), 10)
+
+  })
+
+  it("Test cashflow statement - updateDepreciations", async () => {
+
+    await dao.startReport(income.address, balanceSheet.address, cashflow.address,
+        {from: accounts[0]})
+
+    //Check if only DAO can call
+
+    await assertFail(async () => (
+          await cashflow.updateDepreciations(10, { from: accounts[1] })
+    ));
+
+    //Month 1
+
+    await dao.callUint256(cashflow.address, "updateDepreciations(uint256)",
+                          10)
+
+    var depreciations = await cashflow.getDepreciations()
+
+    assert.equal(depreciations, 10)
+
+    assert.equal(await cashflow.getMonthlyDepreciations(0), 10)
+
+    //Month 2
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callUint256(cashflow.address, "updateDepreciations(uint256)",
+                          10)
+
+    depreciations = await cashflow.getDepreciations()
+
+    assert.equal(depreciations, 10)
+
+    assert.equal(await cashflow.getMonthlyDepreciations(1), 10)
+
+    //Month 3
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callUint256(cashflow.address, "updateDepreciations(uint256)",
+                          10)
+
+    depreciations = await cashflow.getDepreciations()
+
+    assert.equal(depreciations, 10)
+
+    assert.equal(await cashflow.getMonthlyDepreciations(2), 10)
+
+  })
+
+  it("Test cashflow statement - updateDecreasesInAcc", async () => {
+
+    await dao.startReport(income.address, balanceSheet.address, cashflow.address,
+        {from: accounts[0]})
+
+    //Check if only DAO can call
+
+    await assertFail(async () => (
+          await cashflow.updateDecreasesInAcc(10, { from: accounts[1] })
+    ));
+
+    //Month 1
+
+    await dao.callUint256(cashflow.address, "updateDecreasesInAcc(uint256)",
+                          10)
+
+    var decreases = await cashflow.getDeccInAcc()
+
+    assert.equal(decreases, 10)
+
+    //Month 2
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callUint256(cashflow.address, "updateDecreasesInAcc(uint256)",
+                          10)
+
+    decreases = await cashflow.getDeccInAcc()
+
+    assert.equal(decreases, 10)
+
+    //Month 3
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callUint256(cashflow.address, "updateDecreasesInAcc(uint256)",
+                          10)
+
+    decreases = await cashflow.getDeccInAcc()
+
+    assert.equal(decreases, 10)
+
+  })
+
+  it("Test cashflow statement - updateIncreasesInAcc", async () => {
+
+    await dao.startReport(income.address, balanceSheet.address, cashflow.address,
+        {from: accounts[0]})
+
+    //Check if only DAO can call
+
+    await assertFail(async () => (
+          await cashflow.updateIncreasesInAcc(10, { from: accounts[1] })
+    ));
+
+    //Month 1
+
+    await dao.callUint256(cashflow.address, "updateIncreasesInAcc(uint256)",
+                          10)
+
+    var increases = await cashflow.getIncInAcc()
+
+    assert.equal(increases, 10)
+
+    //Month 2
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callUint256(cashflow.address, "updateIncreasesInAcc(uint256)",
+                          10)
+
+    increases = await cashflow.getIncInAcc()
+
+    assert.equal(increases, 10)
+
+    //Month 3
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callUint256(cashflow.address, "updateIncreasesInAcc(uint256)",
+                          10)
+
+    increases = await cashflow.getIncInAcc()
+
+    assert.equal(increases, 10)
+
+  })
+
+  it("Test cashflow statement - updateIncreaseInTaxes", async () => {
+
+    await dao.startReport(income.address, balanceSheet.address, cashflow.address,
+        {from: accounts[0]})
+
+    //Check if only DAO can call
+
+    await assertFail(async () => (
+          await cashflow.updateIncreaseInTaxes(10, { from: accounts[1] })
+    ));
+
+    //Month 1
+
+    await dao.callUint256(cashflow.address, "updateIncreaseInTaxes(uint256)",
+                          10)
+
+    var increases = await cashflow.getIncInTaxes()
+
+    assert.equal(increases, 10)
+
+    //Month 2
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callUint256(cashflow.address, "updateIncreaseInTaxes(uint256)",
+                          10)
+
+    increases = await cashflow.getIncInTaxes()
+
+    assert.equal(increases, 10)
+
+    //Month 3
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callUint256(cashflow.address, "updateIncreaseInTaxes(uint256)",
+                          10)
+
+    increases = await cashflow.getIncInTaxes()
+
+    assert.equal(increases, 10)
+
+  })
+
+  it("Test cashflow statement - updateDividentsPaid", async () => {
+
+    await dao.startReport(income.address, balanceSheet.address, cashflow.address,
+        {from: accounts[0]})
+
+    //Check if only DAO can call
+
+    await assertFail(async () => (
+          await cashflow.updateDividentsPaid(10, { from: accounts[1] })
+    ));
+
+    //Month 1
+
+    await dao.callUint256(cashflow.address, "updateDividentsPaid(uint256)",
+                          10)
+
+    var dividents = await cashflow.getTotalDividentsPaid()
+
+    assert.equal(dividents, 10)
+
+    assert.equal(await cashflow.getMonthlyDividentsPaid(0), 10)
+
+    //Month 2
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callUint256(cashflow.address, "updateDividentsPaid(uint256)",
+                          10)
+
+    dividents = await cashflow.getTotalDividentsPaid()
+
+    assert.equal(dividents, 10)
+
+    assert.equal(await cashflow.getMonthlyDividentsPaid(1), 10)
+
+    //Month 3
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callUint256(cashflow.address, "updateDividentsPaid(uint256)",
+                          10)
+
+    dividents = await cashflow.getTotalDividentsPaid()
+
+    assert.equal(dividents, 10)
+
+    assert.equal(await cashflow.getMonthlyDividentsPaid(2), 10)
+
+  })
+
+  it("Test cashflow statement - updateIncreaseInInventory", async () => {
+
+    await dao.startReport(income.address, balanceSheet.address, cashflow.address,
+        {from: accounts[0]})
+
+    //Check if only DAO can call
+
+    await assertFail(async () => (
+          await cashflow.updateIncreaseInInventory(10, { from: accounts[1] })
+    ));
+
+    //Month 1
+
+    await dao.callUint256(cashflow.address, "updateIncreaseInInventory(uint256)",
+                          10)
+
+    var inventory = await cashflow.getIncreaseInInventory()
+
+    assert.equal(inventory, 10)
+
+    assert.equal(await cashflow.getMonthlyIncreaseInInventory(0), 10)
+
+    //Month 2
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callUint256(cashflow.address, "updateIncreaseInInventory(uint256)",
+                          10)
+
+    inventory = await cashflow.getIncreaseInInventory()
+
+    assert.equal(inventory, 10)
+
+    assert.equal(await cashflow.getMonthlyIncreaseInInventory(1), 10)
+
+    //Month 3
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callUint256(cashflow.address, "updateIncreaseInInventory(uint256)",
+                          10)
+
+    inventory = await cashflow.getIncreaseInInventory()
+
+    assert.equal(inventory, 10)
+
+    assert.equal(await cashflow.getMonthlyIncreaseInInventory(2), 10)
+
+  })
+
+  it("Test cashflow statement - setEquipmentExpenses", async () => {
+
+    await dao.startReport(income.address, balanceSheet.address, cashflow.address,
+        {from: accounts[0]})
+
+    //Check if only DAO can call
+
+    await assertFail(async () => (
+          await cashflow.setEquipmentExpenses("Random", 10, 10, { from: accounts[1] })
+    ));
+
+    //Month 1
+
+    await dao.callStringUint256Uint256(cashflow.address, "setEquipmentExpenses(bytes32,uint256,uint256)",
+                                "Random", 10, 10)
+
+    var equipment = await cashflow.getEquipmentDetails("Random")
+
+    assert.equal(equipment, 10)
+
+    assert.equal(await cashflow.getTotalEquipment(), 10)
+
+    assert.equal(await cashflow.getMonthlyTotalEquipment(0), 10)
+
+    //Month 2
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callStringUint256Uint256(cashflow.address, "setEquipmentExpenses(bytes32,uint256,uint256)",
+                                "Business", 10, 20)
+
+    equipment = await cashflow.getEquipmentDetails("Business")
+
+    assert.equal(equipment, 10)
+
+    assert.equal(await cashflow.getTotalEquipment(), 20)
+
+    assert.equal(await cashflow.getMonthlyTotalEquipment(1), 10)
+
+    //Month 3
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callStringUint256Uint256(cashflow.address, "setEquipmentExpenses(bytes32,uint256,uint256)",
+                                       "Quarter", 10, 30)
+
+    equipment = await cashflow.getEquipmentDetails("Quarter")
+
+    assert.equal(equipment, 10)
+
+    assert.equal(await cashflow.getTotalEquipment(), 30)
+
+    assert.equal(await cashflow.getMonthlyTotalEquipment(2), 10)
+
+  })
+
+  it("Test cashflow statement - setCharity", async () => {
+
+    await dao.startReport(income.address, balanceSheet.address, cashflow.address,
+        {from: accounts[0]})
+
+    //Check if only DAO can call
+
+    await assertFail(async () => (
+          await cashflow.setCharity(10, { from: accounts[1] })
+    ));
+
+    //Month 1
+
+    await dao.callUint256(cashflow.address, "setCharity(uint256)",
+                          10)
+
+    var charity = await cashflow.getCharity()
+
+    assert.equal(charity, 10)
+
+    assert.equal(await cashflow.getMonthlyCharity(0), 10)
+
+    //Month 2
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callUint256(cashflow.address, "setCharity(uint256)",
+                          10)
+
+    charity = await cashflow.getCharity()
+
+    assert.equal(charity, 10)
+
+    assert.equal(await cashflow.getMonthlyCharity(1), 10)
+
+    //Month 3
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callUint256(cashflow.address, "setCharity(uint256)",
+                          10)
+
+    charity = await cashflow.getCharity()
+
+    assert.equal(charity, 10)
+
+    assert.equal(await cashflow.getMonthlyCharity(2), 10)
+
+  })
+
+  it("Test cashflow statement - addRecurrentSalary", async () => {
+
+    await dao.startReport(income.address, balanceSheet.address, cashflow.address,
+        {from: accounts[0]})
+
+    //Check if only DAO can call
+
+    await assertFail(async () => (
+          await cashflow.addRecurrentSalary(accounts[1], 10, { from: accounts[1] })
+    ));
+
+    await dao.callAddressUint256(cashflow.address, "addRecurrentSalary(address,uint256)",
+                          accounts[1], 10)
+
+    var salary = await cashflow.getRecurrentSalary(accounts[1])
+
+    assert.isTrue(salary == 10)
+
+    await dao.callAddress(cashflow.address, "deleteRecurrentSalary(address)", accounts[1])
+
+    salary = await cashflow.getRecurrentSalary(accounts[1])
+
+    assert.isTrue(salary == 0)
+
+  })
+
+  it("Test cashflow statement - addRent", async () => {
+
+    await dao.startReport(income.address, balanceSheet.address, cashflow.address,
+        {from: accounts[0]})
+
+    //Check if only DAO can call
+
+    await assertFail(async () => (
+          await cashflow.addRent("Building", 10, { from: accounts[1] })
+    ));
+
+    await dao.callStringUint256(cashflow.address, "addRent(bytes32,uint256)",
+                          "Building", 10)
+
+    var rent = await cashflow.getRent(0)
+
+    assert.equal(rent[2], 10)
+
+  })
+
+  it("Test cashflow statement - addIncomeTax", async () => {
+
+    await dao.startReport(income.address, balanceSheet.address, cashflow.address,
+        {from: accounts[0]})
+
+    //Check if only DAO can call
+
+    await assertFail(async () => (
+          await cashflow.addIncomeTax("Building", 10, { from: accounts[1] })
+    ));
+
+    await dao.callStringUint256(cashflow.address, "addIncomeTax(bytes32,uint256)",
+                          "Tax", 10)
+
+    var tax = await cashflow.getIncomeTax(0)
+
+    assert.equal(tax[2], 10)
+
+  })
+
+  it("Test cashflow statement - addInterestPayment", async () => {
+
+    await dao.startReport(income.address, balanceSheet.address, cashflow.address,
+        {from: accounts[0]})
+
+    //Check if only DAO can call
+
+    await assertFail(async () => (
+          await cashflow.addInterestPayment("Primary", accounts[1], 10, { from: accounts[1] })
+    ));
+
+    await dao.callStringAddressUint256(cashflow.address, "addInterestPayment(bytes32,address,uint256)",
+                          "Primary", accounts[1], 10)
+
+    var interest = await cashflow.getInterest(0)
+
+    assert.equal(interest[2], 10)
 
   })
 

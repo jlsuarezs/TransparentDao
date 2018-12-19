@@ -1,50 +1,6 @@
-pragma experimental ABIEncoderV2;
+pragma solidity 0.4.24;
 
 contract ICashflowStatement {
-
-  //Structs
-
-  struct NonRecurrentSalary {
-
-    uint256 timestamp;
-
-    bytes32 employeeType;
-
-    address employee;
-
-    uint256 payment;
-
-  }
-
-  struct InterestPayment {
-
-    bytes32 interestType;
-
-    address receiver;
-
-    uint256 amount;
-
-  }
-
-  struct IncomeTax {
-
-    uint256 date;
-
-    bytes32 forWhat;
-
-    uint256 howMuch;
-
-  }
-
-  struct Rent {
-
-    uint256 date;
-
-    bytes32 forWhat;
-
-    uint256 howMuch;
-
-  }
 
   event UpdatedNetEarnings(uint256 earnings);
 
@@ -89,7 +45,7 @@ contract ICashflowStatement {
 
   function updateIncreaseInInventory(uint256 inventory) public;
 
-  function setEquipmentExpenses(bytes32 updateReason, uint256 equipment) public;
+  function setEquipmentExpenses(bytes32 updateReason, uint256 equipment, uint256 total) public;
 
   function setCharity(uint256 _charity) public;
 
@@ -108,6 +64,7 @@ contract ICashflowStatement {
   function addInterestPayment(bytes32 _type, address receiver, uint256 amount) public;
 
 
+  function getHours(uint256 endTime, uint256 startTime) public view returns (uint256);
 
   function getDao() public view returns (address);
 
@@ -127,13 +84,13 @@ contract ICashflowStatement {
 
   function getCharity() public view returns (uint256);
 
-  function getNonCurrentSalary(uint256 pos) public view returns (NonRecurrentSalary);
+  function getNonRecurrentSalary(uint256 pos) public view returns (uint256, bytes32, address, uint256);
 
-  function getIncomeTax(uint256 pos) public view returns (IncomeTax);
+  function getIncomeTax(uint256 pos) public view returns (uint256, bytes32, uint256);
 
-  function getRent(uint256 pos) public view returns (Rent);
+  function getRent(uint256 pos) public view returns (uint256, bytes32, uint256);
 
-  function getInterest(uint256 pos) public view returns (InterestPayment);
+  function getInterest(uint256 pos) public view returns (bytes32, address, uint256);
 
   function getRecurrentSalary(address who) public view returns (uint256);
 

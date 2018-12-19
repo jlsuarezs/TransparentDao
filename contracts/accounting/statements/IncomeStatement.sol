@@ -3,8 +3,6 @@ pragma solidity 0.4.24;
 import "contracts/interfaces/ITransparentDao.sol";
 import "contracts/interfaces/IFloatMath.sol";
 import "contracts/interfaces/IIncomeStatement.sol";
-
-import "contracts/utils/DateTime.sol";
 import "contracts/zeppelin/SafeMath.sol";
 
 contract IncomeStatement is IIncomeStatement {
@@ -31,15 +29,15 @@ contract IncomeStatement is IIncomeStatement {
 
   //Constants
 
-  uint256 month = 712 hours;
-  uint256 twoMonths = 1424 hours;
-  uint256 quarter = 2136 hours;
-  uint256 year = 8544 hours;
+  uint256 month = 712;
+  uint256 twoMonths = 1424;
+  uint256 quarter = 2136;
+  uint256 year = 8544;
 
   //General
 
-  uint256[] monthlyRevenue;
-  uint256[] monthlyExpenses;
+  uint256[] monthlyRevenue = new uint256[](3);
+  uint256[] monthlyExpenses = new uint256[](3);
 
   //Expenses
 
@@ -137,7 +135,9 @@ contract IncomeStatement is IIncomeStatement {
 
     totalGrossIncome = totalGrossIncome.add(howMuch);
 
-    addToMonthlyIncome(getHours(now, startTime), howMuch);
+    uint256 _hours = getHours(now, startTime);
+
+    addToMonthlyIncome(_hours, howMuch);
 
     emit AddedIncome(description, _type, howMuch);
 
@@ -165,7 +165,9 @@ contract IncomeStatement is IIncomeStatement {
 
     totalExpenses = totalExpenses.add(howMuch);
 
-    addToMonthlyExpenses(getHours(now, startTime), howMuch);
+    uint256 _hours = getHours(now, startTime);
+
+    addToMonthlyExpenses(_hours, howMuch);
 
     emit AddedExpense(description, _type, howMuch);
 
@@ -179,7 +181,9 @@ contract IncomeStatement is IIncomeStatement {
 
     totalExpenses = totalExpenses.add(howMuch);
 
-    addToMonthlyExpenses(getHours(now, startTime), howMuch);
+    uint256 _hours = getHours(now, startTime);
+
+    addToMonthlyExpenses(_hours, howMuch);
 
     emit AddedLoss(description, howMuch);
 
@@ -193,7 +197,9 @@ contract IncomeStatement is IIncomeStatement {
 
     totalGrossIncome = totalGrossIncome.add(howMuch);
 
-    addToMonthlyIncome(getHours(now, startTime), howMuch);
+    uint256 _hours = getHours(now, startTime);
+
+    addToMonthlyIncome(_hours, howMuch);
 
     emit AddedGain(description, howMuch);
 
@@ -205,7 +211,9 @@ contract IncomeStatement is IIncomeStatement {
 
     totalExpenses = totalExpenses.add(tax);
 
-    addToMonthlyExpenses( getHours(now, startTime), tax );
+    uint256 _hours = getHours(now, startTime);
+
+    addToMonthlyExpenses( _hours, tax );
 
     emit ReportedTax(tax);
 
@@ -219,7 +227,9 @@ contract IncomeStatement is IIncomeStatement {
 
     RDExpense = RDExpense.add(rdExpense);
 
-    addToMonthlyExpenses(getHours(now, startTime), rdExpense);
+    uint256 _hours = getHours(now, startTime);
+
+    addToMonthlyExpenses(_hours, rdExpense);
 
     emit ReportedRD(description, rdExpense);
 
@@ -233,7 +243,9 @@ contract IncomeStatement is IIncomeStatement {
 
     detailedDonations[description] = detailedDonations[description].add(donation);
 
-    addToMonthlyExpenses(getHours(now, startTime), donation);
+    uint256 _hours = getHours(now, startTime);
+
+    addToMonthlyExpenses(_hours, donation);
 
     emit ReportedDonation(description, donation);
 
@@ -247,7 +259,9 @@ contract IncomeStatement is IIncomeStatement {
 
     detailedInterestPaid[description] = detailedInterestPaid[description].add(howMuch);
 
-    addToMonthlyExpenses(getHours(now, startTime), howMuch);
+    uint256 _hours = getHours(now, startTime);
+
+    addToMonthlyExpenses(_hours, howMuch);
 
     emit ReportedInterestExpense(description, howMuch);
 
@@ -261,7 +275,9 @@ contract IncomeStatement is IIncomeStatement {
 
     totalGrossIncome = totalGrossIncome.add(howMuch);
 
-    addToMonthlyIncome(getHours(now, startTime), howMuch);
+    uint256 _hours = getHours(now, startTime);
+
+    addToMonthlyIncome(_hours, howMuch);
 
     emit ReportedInterestGained(description, howMuch);
 
@@ -274,10 +290,10 @@ contract IncomeStatement is IIncomeStatement {
     if (_hours <= month)
       monthlyRevenue[0] = monthlyRevenue[0].add(howMuch);
 
-    else if (_hours >= month && _hours <= twoMonths)
+    else if (_hours > month && _hours <= twoMonths)
       monthlyRevenue[1] = monthlyRevenue[1].add(howMuch);
 
-    else if (_hours >= twoMonths && _hours <= quarter)
+    else if (_hours > twoMonths && _hours <= quarter)
       monthlyRevenue[2] = monthlyRevenue[2].add(howMuch);
 
   }
@@ -287,10 +303,10 @@ contract IncomeStatement is IIncomeStatement {
     if (_hours <= month)
       monthlyExpenses[0] = monthlyExpenses[0].add(howMuch);
 
-    else if (_hours >= month && _hours <= twoMonths)
+    else if (_hours > month && _hours <= twoMonths)
       monthlyExpenses[1] = monthlyExpenses[1].add(howMuch);
 
-    else if (_hours >= twoMonths && _hours <= quarter)
+    else if (_hours > twoMonths && _hours <= quarter)
       monthlyExpenses[2] = monthlyExpenses[2].add(howMuch);
 
   }
@@ -351,9 +367,27 @@ contract IncomeStatement is IIncomeStatement {
 
   }
 
+  function getDetailedInterestExpense(bytes32 interest) public view returns (uint256) {
+
+    return detailedInterestPaid[interest];
+
+  }
+
+  function getDetailedInterestReceived(bytes32 interest) public view returns (uint256) {
+
+    return detailedInterestReceived[interest];
+
+  }
+
   function getPrimaryExpenses() public view returns (uint256) {
 
     return primaryExpenses;
+
+  }
+
+  function getInterestGained() public view returns (uint256) {
+
+    return interestGained;
 
   }
 

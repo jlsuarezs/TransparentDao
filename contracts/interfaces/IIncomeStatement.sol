@@ -60,7 +60,13 @@ contract IIncomeStatement {
 
   function getDetailedRD(bytes32 rd) public view returns (uint256);
 
+  function getDetailedInterestExpense(bytes32 interest) public view returns (uint256);
+
+  function getDetailedInterestReceived(bytes32 interest) public view returns (uint256);
+
   function getPrimaryExpenses() public view returns (uint256);
+
+  function getInterestGained() public view returns (uint256);
 
   function getSecondaryExpenses() public view returns (uint256);
 
