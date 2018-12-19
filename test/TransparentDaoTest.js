@@ -273,4 +273,440 @@ contract('TransparentDao', function (accounts) {
 
   })
 
+  it("Test income statement - addLoss", async () => {
+
+    await dao.startReport(income.address, balanceSheet.address, cashflow.address,
+        {from: accounts[0]})
+
+    //Check if only DAO can call
+
+    await assertFail(async () => (
+          await income.addLoss("Random", 10, { from: accounts[1] })
+    ));
+
+    //Month 1
+
+    await dao.callStringUint256(income.address, "addLoss(bytes32,uint256)",
+                                "Random", 10)
+
+    var detailedLoss = await income.getDetailedLoss("Random")
+
+    assert.equal(detailedLoss, 10)
+
+    assert.equal(await income.getLosses(), 10)
+
+    assert.equal(await income.getTotalExpenses(), 10)
+
+    assert.equal(await income.getMonthlyExpenses(0), 10)
+
+    //Month 2
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callStringUint256(income.address, "addLoss(bytes32,uint256)",
+                                      "Business", 111)
+
+    detailedLoss = await income.getDetailedLoss("Business")
+
+    assert.equal(detailedLoss, 111)
+
+    assert.equal(await income.getLosses(), 121)
+
+    assert.equal(await income.getTotalExpenses(), 121)
+
+    assert.equal(await income.getMonthlyExpenses(1), 111)
+
+    //Month 3
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callStringUint256(income.address, "addLoss(bytes32,uint256)",
+                                      "End of quarter", 1)
+
+    detailedLoss = await income.getDetailedLoss("End of quarter")
+
+    assert.equal(detailedLoss, 1)
+
+    assert.equal(await income.getLosses(), 122)
+
+    assert.equal(await income.getTotalExpenses(), 122)
+
+    assert.equal(await income.getMonthlyExpenses(2), 1)
+
+  })
+
+  it("Test income statement - addGain", async () => {
+
+    await dao.startReport(income.address, balanceSheet.address, cashflow.address,
+        {from: accounts[0]})
+
+    //Check if only DAO can call
+
+    await assertFail(async () => (
+          await income.addGain("Random", 10, { from: accounts[1] })
+    ));
+
+    //Month 1
+
+    await dao.callStringUint256(income.address, "addGain(bytes32,uint256)",
+                                "Random", 10)
+
+    var detailedGain = await income.getDetailedGain("Random")
+
+    assert.equal(detailedGain, 10)
+
+    assert.equal(await income.getTotalGrossIncome(), 10)
+
+    assert.equal(await income.getMonthlyRevenue(0), 10)
+
+    assert.equal(await income.getGains(), 10)
+
+    //Month 2
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callStringUint256(income.address, "addGain(bytes32,uint256)",
+                                "Business", 100)
+
+    detailedGain = await income.getDetailedGain("Business")
+
+    assert.equal(detailedGain, 100)
+
+    assert.equal(await income.getTotalGrossIncome(), 110)
+
+    assert.equal(await income.getMonthlyRevenue(1), 100)
+
+    assert.equal(await income.getGains(), 110)
+
+    //Month 3
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callStringUint256(income.address, "addGain(bytes32,uint256)",
+                                "End of quarter", 200)
+
+    detailedGain = await income.getDetailedGain("End of quarter")
+
+    assert.equal(detailedGain, 200)
+
+    assert.equal(await income.getTotalGrossIncome(), 310)
+
+    assert.equal(await income.getMonthlyRevenue(2), 200)
+
+    assert.equal(await income.getGains(), 310)
+
+  })
+
+  it("Test income statement - reportTax", async () => {
+
+    await dao.startReport(income.address, balanceSheet.address, cashflow.address,
+        {from: accounts[0]})
+
+    //Check if only DAO can call
+
+    await assertFail(async () => (
+          await income.reportTax(10, { from: accounts[1] })
+    ));
+
+    // Month 1
+
+    await dao.callUint256(income.address, "reportTax(uint256)",
+                          10)
+
+    assert.equal(await income.getIncomeTaxExpenses(), 10)
+
+    assert.equal(await income.getTotalExpenses(), 10)
+
+    assert.equal(await income.getMonthlyExpenses(0), 10)
+
+    // Month 2
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callUint256(income.address, "reportTax(uint256)",
+                          10)
+
+    assert.equal(await income.getIncomeTaxExpenses(), 20)
+
+    assert.equal(await income.getTotalExpenses(), 20)
+
+    assert.equal(await income.getMonthlyExpenses(1), 10)
+
+    // Month 3
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callUint256(income.address, "reportTax(uint256)",
+                          10)
+
+    assert.equal(await income.getIncomeTaxExpenses(), 30)
+
+    assert.equal(await income.getTotalExpenses(), 30)
+
+    assert.equal(await income.getMonthlyExpenses(2), 10)
+
+  })
+
+  it("Test income statement - reportRD", async () => {
+
+    await dao.startReport(income.address, balanceSheet.address, cashflow.address,
+        {from: accounts[0]})
+
+    //Check if only DAO can call
+
+    await assertFail(async () => (
+          await income.reportRD("Random", 10, { from: accounts[1] })
+    ));
+
+    //Month 1
+
+    await dao.callStringUint256(income.address, "reportRD(bytes32,uint256)",
+                                "Random", 10)
+
+    var detailedRD = await income.getDetailedRD("Random")
+
+    assert.equal(detailedRD, 10)
+
+    assert.equal(await income.getRDExpense(), 10)
+
+    assert.equal(await income.getTotalExpenses(), 10)
+
+    assert.equal(await income.getMonthlyExpenses(0), 10)
+
+    //Month 2
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callStringUint256(income.address, "reportRD(bytes32,uint256)",
+                                "Business", 10)
+
+    detailedRD = await income.getDetailedRD("Business")
+
+    assert.equal(detailedRD, 10)
+
+    assert.equal(await income.getRDExpense(), 20)
+
+    assert.equal(await income.getTotalExpenses(), 20)
+
+    assert.equal(await income.getMonthlyExpenses(1), 10)
+
+    //Month 3
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callStringUint256(income.address, "reportRD(bytes32,uint256)",
+                                "Quarter", 10)
+
+    detailedRD = await income.getDetailedRD("Quarter")
+
+    assert.equal(detailedRD, 10)
+
+    assert.equal(await income.getRDExpense(), 30)
+
+    assert.equal(await income.getTotalExpenses(), 30)
+
+    assert.equal(await income.getMonthlyExpenses(2), 10)
+
+  })
+
+  it("Test income statement - reportDonation", async () => {
+
+    await dao.startReport(income.address, balanceSheet.address, cashflow.address,
+        {from: accounts[0]})
+
+    //Check if only DAO can call
+
+    await assertFail(async () => (
+          await income.reportDonation("Random", 10, { from: accounts[1] })
+    ));
+
+    //Month 1
+
+    await dao.callStringUint256(income.address, "reportDonation(bytes32,uint256)",
+                                "Random", 10)
+
+    var detailedDonation = await income.getDetailedDonation("Random")
+
+    assert.equal(detailedDonation, 10)
+
+    assert.equal(await income.getDonations(), 10)
+
+    assert.equal(await income.getTotalExpenses(), 10)
+
+    assert.equal(await income.getMonthlyExpenses(0), 10)
+
+    //Month 2
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callStringUint256(income.address, "reportDonation(bytes32,uint256)",
+                                "Business", 10)
+
+    detailedDonation = await income.getDetailedDonation("Business")
+
+    assert.equal(detailedDonation, 10)
+
+    assert.equal(await income.getDonations(), 20)
+
+    assert.equal(await income.getTotalExpenses(), 20)
+
+    assert.equal(await income.getMonthlyExpenses(1), 10)
+
+    //Month 3
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callStringUint256(income.address, "reportDonation(bytes32,uint256)",
+                                "Quarter", 10)
+
+    detailedDonation = await income.getDetailedDonation("Quarter")
+
+    assert.equal(detailedDonation, 10)
+
+    assert.equal(await income.getDonations(), 30)
+
+    assert.equal(await income.getTotalExpenses(), 30)
+
+    assert.equal(await income.getMonthlyExpenses(2), 10)
+
+  })
+
+  it("Test income statement - reportInterestExpense", async () => {
+
+    await dao.startReport(income.address, balanceSheet.address, cashflow.address,
+        {from: accounts[0]})
+
+    //Check if only DAO can call
+
+    await assertFail(async () => (
+          await income.reportInterestExpense("Random", 10, { from: accounts[1] })
+    ));
+
+    //Month 1
+
+    await dao.callStringUint256(income.address, "reportInterestExpense(bytes32,uint256)",
+                                "Random", 10)
+
+    var detailedInterest = await income.getDetailedInterestExpense("Random")
+
+    assert.equal(detailedInterest, 10)
+
+    assert.equal(await income.getInterestExpense(), 10)
+
+    assert.equal(await income.getTotalExpenses(), 10)
+
+    assert.equal(await income.getMonthlyExpenses(0), 10)
+
+    //Month 2
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callStringUint256(income.address, "reportInterestExpense(bytes32,uint256)",
+                                "Business", 10)
+
+    detailedInterest = await income.getDetailedInterestExpense("Business")
+
+    assert.equal(detailedInterest, 10)
+
+    assert.equal(await income.getInterestExpense(), 20)
+
+    assert.equal(await income.getTotalExpenses(), 20)
+
+    assert.equal(await income.getMonthlyExpenses(1), 10)
+
+    //Month 3
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callStringUint256(income.address, "reportInterestExpense(bytes32,uint256)",
+                                "Quarter", 10)
+
+    detailedInterest = await income.getDetailedInterestExpense("Quarter")
+
+    assert.equal(detailedInterest, 10)
+
+    assert.equal(await income.getInterestExpense(), 30)
+
+    assert.equal(await income.getTotalExpenses(), 30)
+
+    assert.equal(await income.getMonthlyExpenses(2), 10)
+
+  })
+
+  it("Test income statement - reportInterestGained", async () => {
+
+    await dao.startReport(income.address, balanceSheet.address, cashflow.address,
+        {from: accounts[0]})
+
+    //Check if only DAO can call
+
+    await assertFail(async () => (
+          await income.reportInterestGained("Random", 10, { from: accounts[1] })
+    ));
+
+    //Month 1
+
+    await dao.callStringUint256(income.address, "reportInterestGained(bytes32,uint256)",
+                                "Random", 10)
+
+    var detailedInterest = await income.getDetailedInterestReceived("Random")
+
+    assert.equal(detailedInterest, 10)
+
+    assert.equal(await income.getInterestGained(), 10)
+
+    assert.equal(await income.getTotalGrossIncome(), 10)
+
+    assert.equal(await income.getMonthlyRevenue(0), 10)
+
+    //Month 2
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callStringUint256(income.address, "reportInterestGained(bytes32,uint256)",
+                                "Business", 10)
+
+    detailedInterest = await income.getDetailedInterestReceived("Business")
+
+    assert.equal(detailedInterest, 10)
+
+    assert.equal(await income.getInterestGained(), 20)
+
+    assert.equal(await income.getTotalGrossIncome(), 20)
+
+    assert.equal(await income.getMonthlyRevenue(1), 10)
+
+    //Month 3
+
+    await increaseTime.increaseTimeTo(web3.eth.getBlock(web3.eth.blockNumber).timestamp
+        + increaseTime.duration.weeks(5));
+
+    await dao.callStringUint256(income.address, "reportInterestGained(bytes32,uint256)",
+                                "Quarter", 10)
+
+    detailedInterest = await income.getDetailedInterestReceived("Quarter")
+
+    assert.equal(detailedInterest, 10)
+
+    assert.equal(await income.getInterestGained(), 30)
+
+    assert.equal(await income.getTotalGrossIncome(), 30)
+
+    assert.equal(await income.getMonthlyRevenue(2), 10)
+
+  })
+
 })
