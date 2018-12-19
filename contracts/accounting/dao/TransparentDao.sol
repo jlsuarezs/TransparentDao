@@ -3,12 +3,12 @@ pragma solidity 0.4.24;
 import "contracts/zeppelin/SafeMath.sol";
 import "contracts/utils/Forwarder.sol";
 import "contracts/utils/DateTime.sol";
+import "contracts/interfaces/IFloatMath.sol";
 
 import "contracts/interfaces/IDAOCoin.sol";
 import "contracts/interfaces/IDAOBond.sol";
 
 import "contracts/interfaces/ITransparentDao.sol";
-import "contracts/interfaces/IFloatMath.sol";
 
 import "contracts/interfaces/IIncomeStatement.sol";
 import "contracts/interfaces/IBalanceSheet.sol";

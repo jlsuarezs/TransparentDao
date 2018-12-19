@@ -1,0 +1,28 @@
+{
+  "name": "fundamental_analysis",
+  "version": "1.0.0",
+  "description": "Analysing the DAOs made out of smart agents from a fundamental analysis standpoint",
+  "main": "coinValuation.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/universenetwork/autonomous_agents.git"
+  },
+  "keywords": [
+    "javascript",
+    "blockchain"
+  ],
+  "author": "Stefan Ionescu, stefanionescu@protonmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/universenetwork/autonomous_agents/issues"
+  },
+  "homepage": "https://gitlab.com/universenetwork/autonomous_agents#README",
+  "dependencies": {
+    "bignumber.js": "^8.0.1",
+    "ethereumjs-util": "^6.0.0",
+    "web3": "^1.0.0-beta.36"
+  }
+}
