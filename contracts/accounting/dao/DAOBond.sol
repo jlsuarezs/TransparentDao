@@ -37,8 +37,6 @@ contract DAOBond is IDAOBond, Ownable {
 
   uint256 couponThreshold = 0;
 
-  uint256 maxCouponsToRedeem = 0;
-
   BasicToken token;
 
   mapping(uint256 => address) bonds;
@@ -83,6 +81,11 @@ contract DAOBond is IDAOBond, Ownable {
 
   }
 
+  /**
+  * @notice Change the number of elements you can loop through in this contract
+  * @param _loopLimit The new loop limit
+  */
+
   function changeLoopLimit(uint256 _loopLimit) public onlyOwner {
 
     require(_loopLimit > 0);
@@ -90,6 +93,12 @@ contract DAOBond is IDAOBond, Ownable {
     loopLimit = _loopLimit;
 
   }
+
+  /**
+  * @notice Mint bonds to a new buyer
+  * @param buyer The buyer of the bonds
+  * @param _bondsAmount How many bonds to mint
+  */
 
   function mintBond(address buyer, uint256 _bondsAmount) public onlyOwner {
 
@@ -120,6 +129,11 @@ contract DAOBond is IDAOBond, Ownable {
     emit MintedBond(buyer, _bondsAmount);
 
   }
+
+  /**
+  * @notice Redeem coupons on your bonds
+  * @param _bonds An array of bond ids corresponding to the bonds you want to redeem apon
+  */
 
   function redeemCoupons(uint256[] _bonds) public {
 
@@ -167,6 +181,12 @@ contract DAOBond is IDAOBond, Ownable {
 
   }
 
+  /**
+  * @notice Transfer bonds to another address
+  * @param receiver The receiver of the bonds
+  * @param _bonds The ids of the bonds that you want to transfer
+  */
+
   function transfer(address receiver, uint256[] _bonds) public {
 
     require(_bonds.length > 0);
@@ -188,11 +208,25 @@ contract DAOBond is IDAOBond, Ownable {
 
   }
 
-  function donate() public payable {}
+  /**
+  * @notice Donate money to this contract
+  */
 
-  function() {}
+  function donate() public payable {
+
+    require(address(token) == address(0));
+
+  }
+
+  function() payable { revert(); }
 
   //PRIVATE
+
+  /**
+  * @notice Transfer coupon money to an address
+  * @param amount The amount of money to be transferred
+  * @param receiver The address which will receive the money
+  */
 
   function getMoney(uint256 amount, address receiver) private {
 
@@ -208,6 +242,11 @@ contract DAOBond is IDAOBond, Ownable {
 
   //GETTERS
 
+  /**
+  * @dev Get the last time coupons for a particular bond were redeemed
+  * @param bond The bond id to analyze
+  */
+
   function getLastTimeRedeemed(uint256 bond) public view returns (uint256) {
 
     uint256 issueDate = maturities[bond].sub(term);
@@ -218,11 +257,21 @@ contract DAOBond is IDAOBond, Ownable {
 
   }
 
+  /**
+  * @dev Get the owner of a specific bond
+  * @param bond The bond id to analyze
+  */
+
   function getBondOwner(uint256 bond) public view returns (address) {
 
     return bonds[bond];
 
   }
+
+  /**
+  * @dev Get how many coupons remain to be redeemed for a specific bond
+  * @param bond The bond id to analyze
+  */
 
   function getRemainingCoupons(uint256 bond) public view returns (int256) {
 
@@ -236,11 +285,20 @@ contract DAOBond is IDAOBond, Ownable {
 
   }
 
+  /**
+  * @dev Get how many coupons were redeemed for a specific bond
+  * @param bond The bond id to analyze
+  */
+
   function getCouponsRedeemed(uint256 bond) public view returns (uint256) {
 
     return couponsRedeemed[bond];
 
   }
+
+  /**
+  * @dev Get the address of the token that is redeemed for coupons
+  */
 
   function getTokenAddress() public view returns (address) {
 
@@ -248,11 +306,19 @@ contract DAOBond is IDAOBond, Ownable {
 
   }
 
+  /**
+  * @dev Get how many times coupons can be redeemed for bonds
+  */
+
   function getTimesToRedeem() public view returns (uint256) {
 
     return timesToRedeem;
 
   }
+
+  /**
+  * @dev Get how much time it takes for a bond to mature
+  */
 
   function getTerm() public view returns (uint256) {
 
@@ -260,11 +326,20 @@ contract DAOBond is IDAOBond, Ownable {
 
   }
 
+  /**
+  * @dev Get the maturity date for a specific bond
+  * @param bond The bond id to analyze
+  */
+
   function getMaturity(uint256 bond) public view returns (uint256) {
 
     return maturities[bond];
 
   }
+
+  /**
+  * @dev Get how much money is redeemed on a coupon
+  */
 
   function getSimpleInterest() public view returns (uint256) {
 
@@ -276,11 +351,19 @@ contract DAOBond is IDAOBond, Ownable {
 
   }
 
+  /**
+  * @dev Get the yield of a bond
+  */
+
   function getCouponRate() public view returns (uint256) {
 
     return couponRate;
 
   }
+
+  /**
+  * @dev Get the par value for these bonds
+  */
 
   function getParValue() public view returns (uint256) {
 
@@ -288,11 +371,20 @@ contract DAOBond is IDAOBond, Ownable {
 
   }
 
+  /**
+  * @dev Get the cap amount for these bonds
+  */
+
   function getCap() public view returns (uint256) {
 
     return cap;
 
   }
+
+  /**
+  * @dev Get amount of bonds that an address has
+  * @param who The address to analyze
+  */
 
   function getBalance(address who) public view returns (uint256) {
 
@@ -300,11 +392,19 @@ contract DAOBond is IDAOBond, Ownable {
 
   }
 
+  /**
+  * @dev If the par value is a real number, it might have decimals. Get the amount of decimals the par value has
+  */
+
   function getParDecimals() public view returns (uint256) {
 
     return parDecimals;
 
   }
+
+  /**
+  * @dev Get the address of the token redeemed for coupons
+  */
 
   function getTokenToRedeem() public view returns (address) {
 
@@ -312,11 +412,19 @@ contract DAOBond is IDAOBond, Ownable {
 
   }
 
+  /**
+  * @dev Get the name of this smart bond contract
+  */
+
   function getName() public view returns (string) {
 
     return name;
 
   }
+
+  /**
+  * @dev Get the current unpaid debt
+  */
 
   function getTotalDebt() public view returns (uint256) {
 
@@ -324,11 +432,19 @@ contract DAOBond is IDAOBond, Ownable {
 
   }
 
+  /**
+  * @dev Get the total amount of bonds issued
+  */
+
   function getTotalBonds() public view returns (uint256) {
 
     return bondsNumber;
 
   }
+
+  /**
+  * @dev Get the latest nonce
+  */
 
   function getNonce() public view returns (uint256) {
 
@@ -336,15 +452,13 @@ contract DAOBond is IDAOBond, Ownable {
 
   }
 
+  /**
+  * @dev Get the amount of time that needs to pass between the dates when you can redeem coupons
+  */
+
   function getCouponThreshold() public view returns (uint256) {
 
     return couponThreshold;
-
-  }
-
-  function getMaxCouponsToRedeem() public view returns (uint256) {
-
-    return maxCouponsToRedeem;
 
   }
 

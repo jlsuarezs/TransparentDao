@@ -67,6 +67,4 @@ contract IDAOBond {
 
   function getCouponThreshold() public view returns (uint256);
 
-  function getMaxCouponsToRedeem() public view returns (uint256);
-
 }
