@@ -3,7 +3,8 @@ pragma solidity 0.4.24;
 import "contracts/interfaces/ITransparentDao.sol";
 import "contracts/interfaces/IFloatMath.sol";
 import "contracts/interfaces/IIncomeStatement.sol";
-import "contracts/zeppelin/SafeMath.sol";
+
+import "@aragon/os/contracts/lib/math/SafeMath.sol";
 
 contract IncomeStatement is IIncomeStatement {
 
@@ -80,16 +81,9 @@ contract IncomeStatement is IIncomeStatement {
   uint256 endTime;
 
   mapping(bytes32 => Expense) detailedExpenses;
-  mapping(bytes32 => uint256) detailedLosses;
-
   mapping(bytes32 => Income) detailedIncome;
-  mapping(bytes32 => uint256) detailedGains;
 
-  mapping(bytes32 => uint256) detailedDonations;
-  mapping(bytes32 => uint256) detailedRD;
-
-  mapping(bytes32 => uint256) detailedInterestPaid;
-  mapping(bytes32 => uint256) detailedInterestReceived;
+  mapping(string => mapping(bytes32 => uint256)) detailedGeneralCashflow;
 
   modifier onlyDAO {
 
@@ -123,6 +117,8 @@ contract IncomeStatement is IIncomeStatement {
     require(_type == bytes32("primary") ||
             _type == bytes32("secondary"));
 
+    require(description != bytes32(""));
+
     Income memory newItem = Income(_type, howMuch);
 
     detailedIncome[description] = newItem;
@@ -147,6 +143,10 @@ contract IncomeStatement is IIncomeStatement {
 
     require(_type == bytes32("primary") ||
             _type == bytes32("secondary"));
+
+    require(description != bytes32(""));
+
+    require(howMuch > 0);
 
     Expense memory newExpense = Expense(_type, howMuch);
 
@@ -175,7 +175,12 @@ contract IncomeStatement is IIncomeStatement {
 
   function addLoss(bytes32 description, uint256 howMuch) public onlyDAO inQuarter {
 
-    detailedLosses[description] = detailedLosses[description].add(howMuch);
+    require(description != bytes32(""));
+
+    require(howMuch > 0);
+
+    detailedGeneralCashflow["loss"][description]
+      = detailedGeneralCashflow["loss"][description].add(howMuch);
 
     losses = losses.add(howMuch);
 
@@ -191,7 +196,12 @@ contract IncomeStatement is IIncomeStatement {
 
   function addGain(bytes32 description, uint256 howMuch) public onlyDAO inQuarter {
 
-    detailedGains[description] = detailedGains[description].add(howMuch);
+    require(description != bytes32(""));
+
+    require(howMuch > 0);
+
+    detailedGeneralCashflow["gain"][description]
+      = detailedGeneralCashflow["gain"][description].add(howMuch);
 
     gains = gains.add(howMuch);
 
@@ -207,6 +217,8 @@ contract IncomeStatement is IIncomeStatement {
 
   function reportTax(uint256 tax) public onlyDAO inQuarter {
 
+    require(tax > 0);
+
     incomeTaxExpense = incomeTaxExpense.add(tax);
 
     totalExpenses = totalExpenses.add(tax);
@@ -221,7 +233,12 @@ contract IncomeStatement is IIncomeStatement {
 
   function reportRD(bytes32 description, uint256 rdExpense) public onlyDAO inQuarter {
 
-    detailedRD[description] = detailedRD[description].add(rdExpense);
+    require(description != bytes32(""));
+
+    require(rdExpense > 0);
+
+    detailedGeneralCashflow["rd"][description]
+      = detailedGeneralCashflow["rd"][description].add(rdExpense);
 
     totalExpenses = totalExpenses.add(rdExpense);
 
@@ -237,11 +254,16 @@ contract IncomeStatement is IIncomeStatement {
 
   function reportDonation(bytes32 description, uint256 donation) public onlyDAO inQuarter {
 
+    require(description != bytes32(""));
+
+    require(donation > 0);
+
     donations = donations.add(donation);
 
     totalExpenses = totalExpenses.add(donation);
 
-    detailedDonations[description] = detailedDonations[description].add(donation);
+    detailedGeneralCashflow["donation"][description]
+      = detailedGeneralCashflow["donation"][description].add(donation);
 
     uint256 _hours = getHours(now, startTime);
 
@@ -253,11 +275,16 @@ contract IncomeStatement is IIncomeStatement {
 
   function reportInterestExpense(bytes32 description, uint256 howMuch) public onlyDAO inQuarter {
 
+    require(description != bytes32(""));
+
+    require(howMuch > 0);
+
     interestExpense = interestExpense.add(howMuch);
 
     totalExpenses = totalExpenses.add(howMuch);
 
-    detailedInterestPaid[description] = detailedInterestPaid[description].add(howMuch);
+    detailedGeneralCashflow["interestExpense"][description]
+      = detailedGeneralCashflow["interestExpense"][description].add(howMuch);
 
     uint256 _hours = getHours(now, startTime);
 
@@ -269,7 +296,12 @@ contract IncomeStatement is IIncomeStatement {
 
   function reportInterestGained(bytes32 description, uint256 howMuch) public onlyDAO inQuarter {
 
-    detailedInterestReceived[description] = detailedInterestReceived[description].add(howMuch);
+    require(description != bytes32(""));
+
+    require(howMuch > 0);
+
+    detailedGeneralCashflow["interestGained"][description]
+      = detailedGeneralCashflow["interestGained"][description].add(howMuch);
 
     interestGained = interestGained.add(howMuch);
 
@@ -345,37 +377,37 @@ contract IncomeStatement is IIncomeStatement {
 
   function getDetailedLoss(bytes32 loss) public view returns (uint256) {
 
-    return detailedLosses[loss];
+    return detailedGeneralCashflow["loss"][loss];
 
   }
 
   function getDetailedGain(bytes32 gain) public view returns (uint256) {
 
-    return detailedGains[gain];
+    return detailedGeneralCashflow["gain"][gain];
 
   }
 
   function getDetailedDonation(bytes32 donation) public view returns (uint256) {
 
-    return detailedDonations[donation];
+    return detailedGeneralCashflow["donation"][donation];
 
   }
 
   function getDetailedRD(bytes32 rd) public view returns (uint256) {
 
-    return detailedRD[rd];
+    return detailedGeneralCashflow["rd"][rd];
 
   }
 
   function getDetailedInterestExpense(bytes32 interest) public view returns (uint256) {
 
-    return detailedInterestPaid[interest];
+    return detailedGeneralCashflow["interestExpense"][interest];
 
   }
 
   function getDetailedInterestReceived(bytes32 interest) public view returns (uint256) {
 
-    return detailedInterestReceived[interest];
+    return detailedGeneralCashflow["interestGained"][interest];
 
   }
 

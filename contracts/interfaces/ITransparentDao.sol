@@ -19,19 +19,20 @@ contract ITransparentDao is IBaseDao {
   event StartedReport(address income, address balance, address cashflow);
 
 
+  function initialize(address _unitOfAccount,
+                      address _daoCoin) public;
+
   function setDaoCoin(address _coin) public;
 
   function addTax(uint256 percentage, uint256 threshold) public;
 
   function deleteTax(uint256 position) public;
 
-  function changeFloatMath(address _float) public;
-
   function newBond(address _bond) public;
 
   function startReport(address _income, address _balance, address _cashflow) public;
 
-  function isContract(address _addr) private returns (bool);
+  function donate() public payable;
 
   //GETTERS
 
@@ -40,8 +41,6 @@ contract ITransparentDao is IBaseDao {
   function getBondDebt(uint256 startPosition, uint256 bondsNumber) public view returns (uint256);
 
   function getUOAAddress() public view returns (address);
-
-  function getFloatAddress() public view returns (address);
 
   function getCoinsAmount() public view returns (uint256);
 
@@ -54,6 +53,8 @@ contract ITransparentDao is IBaseDao {
   function getLatestTax() public view returns (uint256[]);
 
   function getTaxType() public view returns (uint);
+
+  function getRoles() public view returns (bytes32, bytes32, bytes32, bytes32, bytes32);
 
   function getIncomeThresholds() public view returns (uint256[]);
 

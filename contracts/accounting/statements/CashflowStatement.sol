@@ -2,7 +2,7 @@ pragma solidity 0.4.24;
 
 import "contracts/interfaces/ICashflowStatement.sol";
 
-import "contracts/zeppelin/SafeMath.sol";
+import "@aragon/os/contracts/lib/math/SafeMath.sol";
 
 contract CashflowStatement is ICashflowStatement {
 
@@ -86,10 +86,11 @@ contract CashflowStatement is ICashflowStatement {
 
   address dao;
 
+
   uint256 nonRecurrentNonce = 0;
 
-
   uint256 startTime;
+
 
   uint256[] monthlyCharity = new uint256[](3);
 
@@ -109,6 +110,7 @@ contract CashflowStatement is ICashflowStatement {
   Rent[] rents;
 
   InterestPayment[] interestPayments;
+  
 
   mapping(uint256 => NonRecurrentSalary) nonRecurrentSalaries;
 

@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 
 
 import "contracts/zeppelin/ERC20/ERC20Basic.sol";
-import "contracts/zeppelin/SafeMath.sol";
+import "@aragon/os/contracts/lib/math/SafeMath.sol";
 
 
 /**

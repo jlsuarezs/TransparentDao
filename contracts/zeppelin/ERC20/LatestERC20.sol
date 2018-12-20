@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "contracts/interfaces/IERC20.sol";
-import "contracts/zeppelin/SafeMath.sol";
+import "@aragon/os/contracts/lib/math/SafeMath.sol";
 
 /**
  * @title Standard ERC20 token

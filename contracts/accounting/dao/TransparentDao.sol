@@ -1,9 +1,6 @@
 pragma solidity 0.4.24;
 
-import "contracts/zeppelin/SafeMath.sol";
 import "contracts/utils/Forwarder.sol";
-import "contracts/utils/DateTime.sol";
-import "contracts/interfaces/IFloatMath.sol";
 
 import "contracts/interfaces/IDAOCoin.sol";
 import "contracts/interfaces/IDAOBond.sol";
@@ -14,14 +11,34 @@ import "contracts/interfaces/IIncomeStatement.sol";
 import "contracts/interfaces/IBalanceSheet.sol";
 import "contracts/interfaces/ICashflowStatement.sol";
 
-contract TransparentDao is ITransparentDao, Forwarder {
+import "@aragon/os/contracts/apps/AragonApp.sol";
+import "@aragon/os/contracts/lib/math/SafeMath.sol";
+import "@aragon/os/contracts/common/IsContract.sol";
+
+import "@aragon/os/contracts/acl/ACL.sol";
+import "@aragon/os/contracts/apps/AppProxyUpgradeable.sol";
+import "@aragon/os/contracts/factory/EVMScriptRegistryFactory.sol";
+import "@aragon/os/contracts/factory/DAOFactory.sol";
+import "@aragon/os/contracts/kernel/Kernel.sol";
+import "@aragon/os/contracts/kernel/KernelProxy.sol";
+
+contract TransparentDao is IsContract, ITransparentDao, Forwarder, AragonApp {
 
   using SafeMath for uint256;
+
+  //Aragon related roles
+
+  bytes32 constant public SET_COIN = keccak256("SET_COIN");
+  bytes32 constant public ADD_TAX = keccak256("ADD_TAX");
+  bytes32 constant public DELETE_TAX = keccak256("DELETE_TAX");
+  bytes32 constant public NEW_BOND = keccak256("NEW_BOND");
+  bytes32 constant public START_REPORT = keccak256("START_REPORT");
 
   //Constants
 
   uint256 quarter = 2136 hours;
   uint256 year = 8544 hours;
+
   string fiatRepresentation = "US DOLLAR";
 
   //Structs
@@ -45,7 +62,6 @@ contract TransparentDao is ITransparentDao, Forwarder {
   //We can choose to have a simple or progressive tax
 
   uint256[] latestTax;
-
   uint256[] incomeThresholds;
 
   //Financial year indices
@@ -61,50 +77,25 @@ contract TransparentDao is ITransparentDao, Forwarder {
 
   IDAOCoin daoCoin;
 
-  IFloatMath floatMath;
-
-  DateTime dateTime;
-
-
   IDAOBond[] bonds;
   Report[] reportsArray;
 
   mapping(uint256 => Report) reports;
 
-  constructor(address _unitOfAccount, address _floatMath,
-              address _daoCoin, address _dateTime) {
+  function initialize(address _unitOfAccount,
+                      address _daoCoin) public onlyInit {
 
-    require(_unitOfAccount == address(0) || isContract(_unitOfAccount) == true);
+      require(_unitOfAccount == address(0) || isContract(_unitOfAccount) == true);
 
-    if (daoCoin != address(0)) daoCoin = IDAOCoin(_daoCoin);
+      if (daoCoin != address(0)) daoCoin = IDAOCoin(_daoCoin);
 
-    UOA = _unitOfAccount;
+      UOA = _unitOfAccount;
 
-    if (floatMath != address(0)) floatMath = IFloatMath(_floatMath);
-
-    if (dateTime != address(0)) dateTime = DateTime(_dateTime);
+      initialized();
 
   }
 
-  function changeDateTime(address _dateTime) public {
-
-    require(isContract(_dateTime) == true);
-
-    dateTime = DateTime(_dateTime);
-
-  }
-
-  function changeFloatMath(address _float) public {
-
-    require(isContract(_float) == true);
-
-    floatMath = IFloatMath(_float);
-
-    emit ChangedFloatMath(_float);
-
-  }
-
-  function setDaoCoin(address _coin) public {
+  function setDaoCoin(address _coin) auth(SET_COIN) public {
 
     require(address(daoCoin) == address(0));
     require(isContract(_coin) == true);
@@ -115,7 +106,7 @@ contract TransparentDao is ITransparentDao, Forwarder {
 
   }
 
-  function addTax(uint256 percentage, uint256 threshold) public {
+  function addTax(uint256 percentage, uint256 threshold) auth(ADD_TAX) public {
 
     latestTax.push(percentage);
 
@@ -125,7 +116,7 @@ contract TransparentDao is ITransparentDao, Forwarder {
 
   }
 
-  function deleteTax(uint256 position) public {
+  function deleteTax(uint256 position) auth(DELETE_TAX) public {
 
     require(position < latestTax.length);
 
@@ -146,7 +137,7 @@ contract TransparentDao is ITransparentDao, Forwarder {
 
   }
 
-  function newBond(address _bond) public {
+  function newBond(address _bond) auth(NEW_BOND) public {
 
     require(isContract(_bond) == true);
 
@@ -160,7 +151,8 @@ contract TransparentDao is ITransparentDao, Forwarder {
 
   }
 
-  function startReport(address _income, address _balance, address _cashflow) public {
+  function startReport(address _income, address _balance, address _cashflow)
+    auth(START_REPORT) public {
 
     require(latestReportIssuance == 0 || now - latestReportIssuance >= quarter);
 
@@ -187,21 +179,9 @@ contract TransparentDao is ITransparentDao, Forwarder {
 
   }
 
+  function donate() public payable {}
+
   function() payable {}
-
-  //PRIVATE
-
-  function isContract(address _addr) private returns (bool) {
-
-    uint32 size;
-
-    assembly {
-      size := extcodesize(_addr)
-    }
-
-    return (size > 0);
-
-  }
 
   //GETTERS
 
@@ -260,12 +240,6 @@ contract TransparentDao is ITransparentDao, Forwarder {
 
   }
 
-  function getFloatAddress() public view returns (address) {
-
-    return address(floatMath);
-
-  }
-
   function getCoinAddress() public view returns (address) {
 
     return address(daoCoin);
@@ -289,6 +263,12 @@ contract TransparentDao is ITransparentDao, Forwarder {
   function getIncomeThresholds() public view returns (uint256[]) {
 
     return incomeThresholds;
+
+  }
+
+  function getRoles() public view returns (bytes32, bytes32, bytes32, bytes32, bytes32) {
+
+    return (SET_COIN, ADD_TAX, DELETE_TAX, NEW_BOND, START_REPORT);
 
   }
 

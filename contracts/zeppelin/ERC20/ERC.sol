@@ -7,7 +7,7 @@ import "contracts/zeppelin/ERC20/ERC20Basic.sol";
  * @title ERC20 interface
  * @dev see https://github.com/ethereum/EIPs/issues/20
  */
-contract ERC20 is ERC20Basic {
+contract ERC is ERC20Basic {
   function allowance(address _owner, address _spender)
     public view returns (uint256);
 

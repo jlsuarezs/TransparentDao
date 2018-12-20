@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "contracts/zeppelin/ERC20/BasicToken.sol";
-import "contracts/zeppelin/ERC20/ERC20.sol";
+import "contracts/zeppelin/ERC20/ERC.sol";
 
 
 /**
@@ -11,7 +11,7 @@ import "contracts/zeppelin/ERC20/ERC20.sol";
  * https://github.com/ethereum/EIPs/issues/20
  * Based on code by FirstBlood: https://github.com/Firstbloodio/token/blob/master/smart_contract/FirstBloodToken.sol
  */
-contract StandardToken is ERC20, BasicToken {
+contract StandardToken is ERC, BasicToken {
 
   mapping (address => mapping (address => uint256)) internal allowed;
 

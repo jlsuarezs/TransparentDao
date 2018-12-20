@@ -1,7 +1,9 @@
 pragma solidity 0.4.24;
 
 import "contracts/zeppelin/ownership/Ownable.sol";
-import "contracts/zeppelin/SafeMath.sol";
+
+import "@aragon/os/contracts/lib/math/SafeMath.sol";
+
 import "contracts/zeppelin/ERC20/BasicToken.sol";
 import "contracts/interfaces/IDAOBond.sol";
 

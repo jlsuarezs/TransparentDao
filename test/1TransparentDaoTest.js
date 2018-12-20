@@ -6,12 +6,25 @@ var DAOBond = artifacts.require("contracts/accounting/dao/DAOBond.sol")
 var DAOCoin = artifacts.require("contracts/accounting/dao/DAOCoin.sol")
 var TransparentDao = artifacts.require("contracts/accounting/dao/TransparentDao.sol")
 
+//Aragon related
+
+const ACL = artifacts.require('ACL')
+const AppProxyUpgradeable = artifacts.require('AppProxyUpgradeable')
+const EVMScriptRegistryFactory = artifacts.require('EVMScriptRegistryFactory')
+const DAOFactory = artifacts.require('DAOFactory')
+const Kernel = artifacts.require('Kernel')
+const KernelProxy = artifacts.require('KernelProxy')
+
 const increaseTime = require('./helpers/increaseTime')
 const assertFail = require("./helpers/assertFail")
 
+const { hash } = require('eth-ens-namehash')
+
+const getEvent = (receipt, event, arg) => { return receipt.logs.filter(l => l.event == event)[0].args[arg] }
+
 contract('TransparentDao', function (accounts) {
 
-  let balanceSheet, cashflow, income, bond, coin, uoa, dao
+  let balanceSheet, cashflow, income, bond, coin, uoa, dao, acl
 
   //Bond vars
 
@@ -31,22 +44,69 @@ contract('TransparentDao', function (accounts) {
   let symbol = "D"
   let decimals = 18
 
+  //Aragon
+
+  let roles
+  let daoFact
+  let transparentId
+  let APP_MANAGER_ROLE, ANY_ENTITY
+
   uoa = '0x0'
 
+  before(async () => {
+
+    const kernelBase = await Kernel.new(true)
+    const aclBase = await ACL.new()
+    const regFact = await EVMScriptRegistryFactory.new()
+    daoFact = await DAOFactory.new(kernelBase.address, aclBase.address, regFact.address)
+
+    // Setup constants
+    ANY_ENTITY = await aclBase.ANY_ENTITY()
+    APP_MANAGER_ROLE = await kernelBase.APP_MANAGER_ROLE()
+
+  })
+
   beforeEach(async () => {
+
+    dao = await TransparentDao.new()
+
+    const r = await daoFact.newDAO(accounts[0])
+    const aragonDao = Kernel.at(getEvent(r, 'DeployDAO', 'dao'))
+    const acl = ACL.at(await aragonDao.acl())
+
+    await acl.createPermission(accounts[0], aragonDao.address,
+        APP_MANAGER_ROLE, accounts[0], { from: accounts[0] })
+
+    // Transparent dao
+    transparentId = hash('TransparentDao.aragonpm.eth')
+
+    const transparentReceipt = await aragonDao.newAppInstance(transparentId, dao.address, '0x', false)
+    const transparentProxyAddress = getEvent(transparentReceipt, 'NewAppProxy', 'proxy')
+
+
+    dao = TransparentDao.at(transparentProxyAddress)
 
     bond = await DAOBond.new(bondName, par, parDecimals, coupon,
         term, cap, timesToRedeem, tknToRedeem, loopLimit, {from: accounts[0]})
 
     coin = await DAOCoin.new(coinName, symbol, decimals, {from: accounts[0]})
 
-    dao = await TransparentDao.new(uoa, "0x0", coin.address, "0x0", {from: accounts[0]})
-
     income = await IncomeStatement.new(dao.address, {from: accounts[0]})
 
     balanceSheet = await BalanceSheet.new(dao.address, {from: accounts[0]})
 
     cashflow = await CashflowStatement.new(dao.address, {from: accounts[0]})
+
+
+    roles = await dao.getRoles()
+
+    await acl.createPermission(accounts[0], dao.address, roles[0], accounts[0])
+    await acl.createPermission(accounts[0], dao.address, roles[1], accounts[0])
+    await acl.createPermission(accounts[0], dao.address, roles[2], accounts[0])
+    await acl.createPermission(accounts[0], dao.address, roles[3], accounts[0])
+    await acl.createPermission(accounts[0], dao.address, roles[4], accounts[0])
+
+    await dao.initialize(uoa, '0x0')
 
   })
 

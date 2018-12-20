@@ -11,7 +11,7 @@
       "params": []
     }
   ],
-  "path": "contracts/CounterApp.sol",
+  "path": "contracts/accounting/dao/TransparentDao.sol",
   "environments": {
     "default": {
       "network": "development",

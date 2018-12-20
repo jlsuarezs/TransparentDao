@@ -36,7 +36,7 @@ module.exports = async function(deployer, network, accounts) {
 
         deployer.deploy(DAOBond, bondName, par, parDecimals, coupon, term, cap, timesToRedeem, tknToRedeem, loopLimit).then(function() {
             return deployer.deploy(DAOCoin, coinName, symbol, decimals).then(function() {
-                return deployer.deploy(TransparentDao, uoa, nullAddr, nullAddr, nullAddr).then(async function() {
+                return deployer.deploy(TransparentDao).then(async function() {
 
         }) }) })
 
@@ -44,7 +44,7 @@ module.exports = async function(deployer, network, accounts) {
 
         deployer.deploy(DAOBond, bondName, par, parDecimals, coupon, term, cap, timesToRedeem, tknToRedeem, loopLimit, {from: accounts[0]}).then(function() {
             return deployer.deploy(DAOCoin, coinName, symbol, decimals).then(function() {
-                return deployer.deploy(TransparentDao, uoa, nullAddr, nullAddr, nullAddr).then(async function() {
+                return deployer.deploy(TransparentDao).then(async function() {
 
         }) }) })
 

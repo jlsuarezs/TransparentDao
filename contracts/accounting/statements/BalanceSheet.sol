@@ -6,65 +6,10 @@ contract BalanceSheet is IBalanceSheet {
 
   //Constants
 
-  uint256 month = 712 hours;
-  uint256 twoMonths = 1424 hours;
-  uint256 quarter = 2136 hours;
-  uint256 year = 8544 hours;
-
-/*
-  //Assets
-
-  int256 cash;
-
-  int256 marketableSecurities;
-
-  int256 accountsReceivable;
-
-  int256 inventory;
-
-  int256 prepaidExpenses;
-
-  int256 longTermExpenses;
-
-  int256 fixedAssets;
-
-  int256 intangibleAssets;
-
-  int256 shortTermInvestments;
-
-  int256 totalShortTermAssets;
-
-  int256 totalLongTermAssets;
-
-  int256 totalAssets;
-
-  //Liabilities
-
-  int256 currentPortionLongTermDebt;
-
-  int256 bankIndebtedness;
-
-  int256 interestPayable;
-
-  int256 wages;
-
-  int256 longTermDebt;
-
-  int256 totalLiabilities;
-
-  //Equity
-
-  uint256 retainedEarnings;
-
-  uint256 commonCoins;
-
-  uint256 treasuryCoins;
-
-  uint256 commonEquity;
-
-  uint256 bookValue;
-
-*/
+  uint256 month = 712;
+  uint256 twoMonths = 1424;
+  uint256 quarter = 2136;
+  uint256 year = 8544;
 
   //Misscellanous
 
