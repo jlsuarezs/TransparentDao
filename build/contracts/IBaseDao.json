@@ -1,0 +1,342 @@
+{
+  "contractName": "IBaseDao",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getMarketPrice",
+      "outputs": [
+        {
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "pragma solidity 0.4.24;\n\ncontract IBaseDao {\n\n  //Market price\n\n  int256 marketPrice = -1;\n\n  function getMarketPrice() public view returns (int256);\n\n}\n",
+  "sourcePath": "contracts/interfaces/IBaseDao.sol",
+  "ast": {
+    "absolutePath": "contracts/interfaces/IBaseDao.sol",
+    "exportedSymbols": {
+      "IBaseDao": [
+        8002
+      ]
+    },
+    "id": 8003,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 7992,
+        "literals": [
+          "solidity",
+          "0.4",
+          ".24"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:23:59"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": false,
+        "id": 8002,
+        "linearizedBaseContracts": [
+          8002
+        ],
+        "name": "IBaseDao",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 7996,
+            "name": "marketPrice",
+            "nodeType": "VariableDeclaration",
+            "scope": 8002,
+            "src": "66:23:59",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_int256",
+              "typeString": "int256"
+            },
+            "typeName": {
+              "id": 7993,
+              "name": "int256",
+              "nodeType": "ElementaryTypeName",
+              "src": "66:6:59",
+              "typeDescriptions": {
+                "typeIdentifier": "t_int256",
+                "typeString": "int256"
+              }
+            },
+            "value": {
+              "argumentTypes": null,
+              "id": 7995,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "lValueRequested": false,
+              "nodeType": "UnaryOperation",
+              "operator": "-",
+              "prefix": true,
+              "src": "87:2:59",
+              "subExpression": {
+                "argumentTypes": null,
+                "hexValue": "31",
+                "id": 7994,
+                "isConstant": false,
+                "isLValue": false,
+                "isPure": true,
+                "kind": "number",
+                "lValueRequested": false,
+                "nodeType": "Literal",
+                "src": "88:1:59",
+                "subdenomination": null,
+                "typeDescriptions": {
+                  "typeIdentifier": "t_rational_1_by_1",
+                  "typeString": "int_const 1"
+                },
+                "value": "1"
+              },
+              "typeDescriptions": {
+                "typeIdentifier": "t_rational_-1_by_1",
+                "typeString": "int_const -1"
+              }
+            },
+            "visibility": "internal"
+          },
+          {
+            "body": null,
+            "documentation": null,
+            "id": 8001,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": true,
+            "modifiers": [],
+            "name": "getMarketPrice",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 7997,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "117:2:59"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 8000,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 7999,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 8001,
+                  "src": "141:6:59",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_int256",
+                    "typeString": "int256"
+                  },
+                  "typeName": {
+                    "id": 7998,
+                    "name": "int256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "141:6:59",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_int256",
+                      "typeString": "int256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "140:8:59"
+            },
+            "scope": 8002,
+            "src": "94:55:59",
+            "stateMutability": "view",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 8003,
+        "src": "25:127:59"
+      }
+    ],
+    "src": "0:153:59"
+  },
+  "legacyAST": {
+    "absolutePath": "contracts/interfaces/IBaseDao.sol",
+    "exportedSymbols": {
+      "IBaseDao": [
+        8002
+      ]
+    },
+    "id": 8003,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 7992,
+        "literals": [
+          "solidity",
+          "0.4",
+          ".24"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:23:59"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": false,
+        "id": 8002,
+        "linearizedBaseContracts": [
+          8002
+        ],
+        "name": "IBaseDao",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 7996,
+            "name": "marketPrice",
+            "nodeType": "VariableDeclaration",
+            "scope": 8002,
+            "src": "66:23:59",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_int256",
+              "typeString": "int256"
+            },
+            "typeName": {
+              "id": 7993,
+              "name": "int256",
+              "nodeType": "ElementaryTypeName",
+              "src": "66:6:59",
+              "typeDescriptions": {
+                "typeIdentifier": "t_int256",
+                "typeString": "int256"
+              }
+            },
+            "value": {
+              "argumentTypes": null,
+              "id": 7995,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "lValueRequested": false,
+              "nodeType": "UnaryOperation",
+              "operator": "-",
+              "prefix": true,
+              "src": "87:2:59",
+              "subExpression": {
+                "argumentTypes": null,
+                "hexValue": "31",
+                "id": 7994,
+                "isConstant": false,
+                "isLValue": false,
+                "isPure": true,
+                "kind": "number",
+                "lValueRequested": false,
+                "nodeType": "Literal",
+                "src": "88:1:59",
+                "subdenomination": null,
+                "typeDescriptions": {
+                  "typeIdentifier": "t_rational_1_by_1",
+                  "typeString": "int_const 1"
+                },
+                "value": "1"
+              },
+              "typeDescriptions": {
+                "typeIdentifier": "t_rational_-1_by_1",
+                "typeString": "int_const -1"
+              }
+            },
+            "visibility": "internal"
+          },
+          {
+            "body": null,
+            "documentation": null,
+            "id": 8001,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": true,
+            "modifiers": [],
+            "name": "getMarketPrice",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 7997,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "117:2:59"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 8000,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 7999,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 8001,
+                  "src": "141:6:59",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_int256",
+                    "typeString": "int256"
+                  },
+                  "typeName": {
+                    "id": 7998,
+                    "name": "int256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "141:6:59",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_int256",
+                      "typeString": "int256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "140:8:59"
+            },
+            "scope": 8002,
+            "src": "94:55:59",
+            "stateMutability": "view",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 8003,
+        "src": "25:127:59"
+      }
+    ],
+    "src": "0:153:59"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.24+commit.e67f0147.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "2.0.1",
+  "updatedAt": "2018-12-20T23:25:46.257Z"
+}

@@ -5,7 +5,7 @@ var BigNumber = require('bignumber.js')
 var incomeABI = require('./abi/IncomeStatement.js')
 var balanceABI = require('./abi/BalanceSheet.js')
 var cashflowABI = require('./abi/CashflowStatement.js')
-var daoABI = require('./abi/Dao.js')
+var daoABI = require('./abi/TransparentDao.js')
 var daoBondABI = require('./abi/DAOBond.js')
 
 var web3
@@ -64,7 +64,7 @@ async function getContract(pubKey, name, _addr) {
 
   } else if (name.toLowerCase() == 'dao') {
 
-    var dao = new web3.eth.Contract(daoABI.dao.abi, _addr,
+    var dao = new web3.eth.Contract(daoABI.transparentDao.abi, _addr,
       {from: pubKey.toString(), gas: defaultGas});
 
     return dao
@@ -163,22 +163,6 @@ async function getBondDebt(dao, startPosition, bondsNumber) {
 }
 
 //INCOME STATEMENT
-
-async function getEPC(income) {
-
-  var epc
-
-  await income.methods.getEPC().call(function(err, result) {
-
-    if (err != undefined) {epc = undefined; console.log(err)}
-
-    else epc = result
-
-  });
-
-  return epc
-
-}
 
 async function getDetailedExpense(income, expense) {
 
@@ -549,38 +533,6 @@ async function getEndTime(income) {
 }
 
 //BALANCE SHEET
-
-async function getMarginOfSafety(balance) {
-
-  var margin
-
-  await balance.methods.getMarginOfSafety().call(function(err, result) {
-
-    if (err != undefined) {margin = undefined; console.log(err)}
-
-    else margin = result
-
-  });
-
-  return margin
-
-}
-
-async function getAcidTestResult(balance) {
-
-  var acid
-
-  await balance.methods.getAcidTestResult().call(function(err, result) {
-
-    if (err != undefined) {acid = undefined; console.log(err)}
-
-    else acid = result
-
-  });
-
-  return acid
-
-}
 
 async function getAsset(balance, _asset) {
 
@@ -1006,13 +958,10 @@ module.exports = {
   getDetailedLoss,
   getDetailedIncome,
   getDetailedExpense,
-  getEPC,
 
   getEquity,
   getLiability,
   getAsset,
-  getAcidTestResult,
-  getMarginOfSafety,
 
   getEquipmentDetails,
   getRecurrentSalary,
