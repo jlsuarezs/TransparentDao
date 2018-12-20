@@ -1,15 +1,36 @@
 {
   "roles": [
+
     {
-      "name": "Increment the counter",
-      "id": "INCREMENT_ROLE",
-      "params": []
+      "name": "Sets the official coin of the Dao",
+      "id": "SET_COIN",
+      "params": ["_coin"]
     },
+
     {
-      "name": "Decrement the counter",
-      "id": "DECREMENT_ROLE",
-      "params": []
+      "name": "The government can set a tax threshold for the Dao",
+      "id": "ADD_TAX",
+      "params": ["percentage", "threshold"]
+    },
+
+    {
+      "name": "The government can delete a tax threshold",
+      "id": "DELETE_TAX",
+      "params": ["position"]
+    },
+
+    {
+      "name": "The participants in the Dao can raise funds by issuing bonds",
+      "id": "NEW_BOND",
+      "params": ["_bond"]
+    },
+
+    {
+      "name": "Start a new quaterly report",
+      "id": "START_REPORT",
+      "params": ["_income", "_balance", "_cashflow"]
     }
+
   ],
   "path": "contracts/accounting/dao/TransparentDao.sol",
   "environments": {

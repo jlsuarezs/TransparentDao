@@ -83,14 +83,15 @@ contract CashflowStatement is ICashflowStatement {
 
   uint256 totalDividentsPaid;
 
+  //Misscelaneous
 
   address dao;
-
 
   uint256 nonRecurrentNonce = 0;
 
   uint256 startTime;
 
+  //Monthly accounting
 
   uint256[] monthlyCharity = new uint256[](3);
 
@@ -104,17 +105,21 @@ contract CashflowStatement is ICashflowStatement {
 
   uint256[] monthlyDividentsPaid = new uint256[](3);
 
+  //Struct arrays
 
   IncomeTax[] incomeTaxes;
 
   Rent[] rents;
 
   InterestPayment[] interestPayments;
-  
+
+  //Salaries
 
   mapping(uint256 => NonRecurrentSalary) nonRecurrentSalaries;
 
   mapping(address => uint256) recurrentSalaries;
+
+  //Equipment expenses details
 
   mapping(bytes32 => uint256) equipmentExpenses;
 

@@ -82,6 +82,12 @@ contract TransparentDao is IsContract, ITransparentDao, Forwarder, AragonApp {
 
   mapping(uint256 => Report) reports;
 
+  /**
+  * @notice Initialize the contract as described in the Aragon docs
+  * @param _unitOfAccount The UOA crypto-coin that is used to do accounting (the revenues/expenses are denoted in this coin when shown on the front-end)
+  * @param _daoCoin The address of the ERC-20 contract
+  */
+
   function initialize(address _unitOfAccount,
                       address _daoCoin) public onlyInit {
 
@@ -95,6 +101,11 @@ contract TransparentDao is IsContract, ITransparentDao, Forwarder, AragonApp {
 
   }
 
+  /**
+  * @notice Set the official Dao coin
+  * @param _coin The address of the ERC-20 contract
+  */
+
   function setDaoCoin(address _coin) auth(SET_COIN) public {
 
     require(address(daoCoin) == address(0));
@@ -106,6 +117,12 @@ contract TransparentDao is IsContract, ITransparentDao, Forwarder, AragonApp {
 
   }
 
+  /**
+  * @notice The government (or a representative) can add a tax threshold for the Dao
+  * @param percentage Percentage of tax charged from gross revenues
+  * @param threshold Threshold of revenues that the Dao needs to cross in order to pay a certain tax
+  */
+
   function addTax(uint256 percentage, uint256 threshold) auth(ADD_TAX) public {
 
     latestTax.push(percentage);
@@ -115,6 +132,11 @@ contract TransparentDao is IsContract, ITransparentDao, Forwarder, AragonApp {
     emit AddedTax(percentage, threshold);
 
   }
+
+  /**
+  * @notice The government (or a representative) can delete a tax threshold for the Dao
+  * @param position The position of the tax threshold in the latestTax array
+  */
 
   function deleteTax(uint256 position) auth(DELETE_TAX) public {
 
@@ -137,6 +159,11 @@ contract TransparentDao is IsContract, ITransparentDao, Forwarder, AragonApp {
 
   }
 
+  /**
+  * @notice Issue a new bond for this Dao
+  * @param _bond The address of the smart bond contract
+  */
+
   function newBond(address _bond) auth(NEW_BOND) public {
 
     require(isContract(_bond) == true);
@@ -150,6 +177,13 @@ contract TransparentDao is IsContract, ITransparentDao, Forwarder, AragonApp {
     emit NewBond(_bond);
 
   }
+
+  /**
+  * @notice Start a new quaterly report
+  * @param _income The address of the income statement contract
+  * @param _balance The address of the balance sheet contract
+  * @param _cashflow The address of the cashflow statement contract
+  */
 
   function startReport(address _income, address _balance, address _cashflow)
     auth(START_REPORT) public {
@@ -179,17 +213,33 @@ contract TransparentDao is IsContract, ITransparentDao, Forwarder, AragonApp {
 
   }
 
+  /**
+  * @notice Donate money to this Dao
+  */
+
   function donate() public payable {}
 
-  function() payable {}
+  function() payable { revert(); }
 
   //GETTERS
+
+  /**
+  * @dev Get the unit of account coin address
+  * @return The address of the coin contract
+  */
 
   function getUOAAddress() public view returns (address) {
 
     return UOA;
 
   }
+
+  /**
+  * @dev Get the total debt of the bonds issued by this Dao between 2 indices
+  * @param startPosition The position in the bonds array from which to loop
+  * @param bondsNumber How many bonds to take into consideration starting from startPosition
+  * @return The total debt from bondsNumber bonds
+  */
 
   function getBondDebt(uint256 startPosition, uint256 bondsNumber) public view returns (uint256) {
 
@@ -215,11 +265,22 @@ contract TransparentDao is IsContract, ITransparentDao, Forwarder, AragonApp {
 
   }
 
+  /**
+  * @dev Get the address of a bond contract from the bonds array
+  * @param position The position of the bond contract in the array
+  * @return The address of the smart bond contract
+  */
+
   function getBondAddress(uint256 position) public view returns (address) {
 
     return address(bonds[position]);
 
   }
+
+  /**
+  * @dev Get the market price of this Dao
+  * @return The market price
+  */
 
   function getMarketPrice() public view returns (int256) {
 
@@ -227,11 +288,22 @@ contract TransparentDao is IsContract, ITransparentDao, Forwarder, AragonApp {
 
   }
 
+  /**
+  * @dev Get the length of the reportsArray
+  * @return The length of the reports array
+  */
+
   function getReportsLength() public view returns (uint256) {
 
     return reportsArray.length;
 
   }
+
+  /**
+  * @dev Get the financial reports addresses from a specific reportsArray position
+  * @param position The position of the reportsArray array
+  * @return The 3 addresses corresponding to the income statement, balance sheet and cashflow statement
+  */
 
   function getReportAtPosition(uint256 position) public view returns (address, address, address) {
 
@@ -240,11 +312,21 @@ contract TransparentDao is IsContract, ITransparentDao, Forwarder, AragonApp {
 
   }
 
+  /**
+  * @dev Get the address of the official Dao coin
+  * @return The address of the coin address
+  */
+
   function getCoinAddress() public view returns (address) {
 
     return address(daoCoin);
 
   }
+
+  /**
+  * @dev Get the number of coins issued in the official Dao coin contract
+  * @return The amounf of coins issued
+  */
 
   function getCoinsAmount() public view returns (uint256) {
 
@@ -254,11 +336,21 @@ contract TransparentDao is IsContract, ITransparentDao, Forwarder, AragonApp {
 
   }
 
+  /**
+  * @dev Get the latestTax array
+  * @return The array having the taxes applied to this Dao
+  */
+
   function getLatestTax() public view returns (uint256[]) {
 
     return latestTax;
 
   }
+
+  /**
+  * @dev Get the income threshold for which taxes will be applied
+  * @return The incomeThresholds array
+  */
 
   function getIncomeThresholds() public view returns (uint256[]) {
 
@@ -266,11 +358,21 @@ contract TransparentDao is IsContract, ITransparentDao, Forwarder, AragonApp {
 
   }
 
+  /**
+  * @dev Get the Aragon roles from this contract
+  * @return All Aragon roles
+  */
+
   function getRoles() public view returns (bytes32, bytes32, bytes32, bytes32, bytes32) {
 
     return (SET_COIN, ADD_TAX, DELETE_TAX, NEW_BOND, START_REPORT);
 
   }
+
+  /**
+  * @dev Get the type of tax applied to this Dao
+  * @return The tax type for this Dao
+  */
 
   function getTaxType() public view returns (uint) {
 
